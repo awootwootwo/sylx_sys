@@ -3,222 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sylx_Sys Repository Navigator</title>
+    <title>Sylx_Sys Live Navigator</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --border: #e2e8f0;
+            --accent: #6366f1;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text-dim: #94a3b8;
+            --text-bright: #f8fafc;
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
-            color: var(--text);
+            color: var(--text-bright);
             margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .navigator-card {
-            width: 100%;
-            max-width: 850px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            overflow: hidden;
-        }
-
-        .header {
             padding: 20px;
-            border-bottom: 1px solid var(--border);
-            background: #fff;
-        }
-
-        .repo-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .repo-badge {
-            background: #eff6ff;
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .breadcrumb-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #64748b;
-        }
-
-        .breadcrumb-item {
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .breadcrumb-item:hover { color: var(--primary); text-decoration: underline; }
-        .breadcrumb-current { color: var(--text); font-weight: 600; }
-
-        .file-grid {
-            padding: 10px;
-            min-height: 300px;
-        }
-
-        .file-row {
-            display: grid;
-            grid-template-columns: 40px 1fr 100px;
-            align-items: center;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .file-row:hover { background: #f1f5f9; }
-        .file-row:last-child { border-bottom: none; }
-
-        .icon { font-size: 20px; display: flex; justify-content: center; }
-        .name { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .type-label { font-size: 11px; text-transform: uppercase; color: #94a3b8; text-align: right; letter-spacing: 0.5px; }
-
-        .loading-state {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 200px;
-            color: #94a3b8;
         }
 
-        .btn-back {
-            background: none;
-            border: 1px solid var(--border);
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 13px;
+        .nav-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            border-bottom: 1px solid #334155;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .status-bar {
+            font-size: 12px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .breadcrumb {
+            margin-top: 5px;
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .breadcrumb span { cursor: pointer; }
+        .breadcrumb span:hover { color: var(--accent); }
+
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #2d3748;
+            border-radius: 8px;
             cursor: pointer;
-            margin-right: 10px;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
         }
 
-        .btn-back:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .nav-item:hover {
+            background: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .icon { font-size: 20px; margin-right: 15px; }
+        .details { flex-grow: 1; }
+        .file-name { font-size: 14px; font-weight: 500; }
+        .path-hint { font-size: 11px; color: var(--text-dim); }
+        .nav-item:hover .path-hint { color: #e0e7ff; }
+
+        .empty-msg { text-align: center; padding: 20px; color: var(--text-dim); }
     </style>
 </head>
 <body>
 
-<div class="navigator-card">
+<div class="nav-container">
     <div class="header">
-        <div class="repo-info">
-            <span class="repo-badge">GitHub Repository</span>
-            <strong id="repo-title">awootwootwo / sylx_sys</strong>
-        </div>
-        <div class="breadcrumb-container">
-            <button class="btn-back" onclick="goBack()" id="back-btn" style="display:none;">← Back</button>
-            <div id="breadcrumbs"></div>
-        </div>
+        <div class="status-bar">● Live Site Explorer</div>
+        <div class="breadcrumb" id="breadcrumb">root</div>
     </div>
 
-    <div id="file-viewer" class="file-grid">
+    <div id="file-list" class="file-list">
         </div>
 </div>
 
 <script>
     const REPO_OWNER = 'awootwootwo';
     const REPO_NAME = 'sylx_sys';
-    let pathHistory = [];
+    
+    // Set this to your local server address or your production domain
+    const BASE_URL = window.location.origin; 
 
-    async function loadDirectory(pathArr = []) {
+    let currentPathArr = [];
+
+    async function loadNav(pathArr = []) {
         const pathString = pathArr.join('/');
-        const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${pathString}`;
-        const viewer = document.getElementById('file-viewer');
-        
-        viewer.innerHTML = `<div class="loading-state">Scanning repository...</div>`;
-        document.getElementById('back-btn').style.display = pathArr.length > 0 ? 'block' : 'none';
+        const apiUri = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${pathString}`;
+        const listContainer = document.getElementById('file-list');
 
         try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Could not fetch data');
-            const data = await response.json();
+            const res = await fetch(apiUri);
+            const data = await res.json();
             
-            renderFiles(data);
-            renderBreadcrumbs(pathArr);
-        } catch (err) {
-            viewer.innerHTML = `<div class="loading-state" style="color: #ef4444;">Failed to load repository contents.</div>`;
+            renderBreadcrumb(pathArr);
+            
+            listContainer.innerHTML = '';
+            
+            // Filter to show directories or specific file types you want to navigate to
+            data.sort((a, b) => (b.type === 'dir') - (a.type === 'dir'));
+
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'nav-item';
+                
+                const isDir = item.type === 'dir';
+                const icon = isDir ? '📂' : '🔗';
+                
+                // Logic: If it's a directory, we drill down. 
+                // If it's a file, we treat it as a route.
+                div.innerHTML = `
+                    <div class="icon">${icon}</div>
+                    <div class="details">
+                        <div class="file-name">${item.name}</div>
+                        <div class="path-hint">${isDir ? 'View Sub-pages' : 'Go to Page'}</div>
+                    </div>
+                `;
+
+                div.onclick = () => {
+                    if (isDir) {
+                        currentPathArr.push(item.name);
+                        loadNav(currentPathArr);
+                    } else {
+                        // NAVIGATION LOGIC: 
+                        // We strip the extension (like .html or .py) to try and match your routes
+                        const routeName = item.name.replace(/\.[^/.]+$/, "");
+                        const targetUrl = `${BASE_URL}/${currentPathArr.join('/')}/${routeName}`;
+                        
+                        console.log("Navigating to:", targetUrl);
+                        window.location.href = targetUrl; 
+                    }
+                };
+                listContainer.appendChild(div);
+            });
+
+        } catch (e) {
+            listContainer.innerHTML = '<div class="empty-msg">Error connecting to repository.</div>';
         }
     }
 
-    function renderFiles(items) {
-        const viewer = document.getElementById('file-viewer');
-        viewer.innerHTML = '';
-
-        // Sort: Folders first
-        items.sort((a, b) => (b.type === 'dir') - (a.type === 'dir'));
-
-        items.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'file-row';
-            
-            const isFolder = item.type === 'dir';
-            const icon = isFolder ? '📁' : '📄';
-
-            row.innerHTML = `
-                <div class="icon">${icon}</div>
-                <div class="name">${item.name}</div>
-                <div class="type-label">${isFolder ? 'Folder' : 'File'}</div>
-            `;
-
-            row.onclick = () => {
-                if (isFolder) {
-                    pathHistory.push(item.name);
-                    loadDirectory(pathHistory);
-                } else {
-                    window.open(item.html_url, '_blank');
-                }
-            };
-            viewer.appendChild(row);
+    function renderBreadcrumb(pathArr) {
+        const bc = document.getElementById('breadcrumb');
+        bc.innerHTML = '<span onclick="jump( -1 )">root</span>';
+        pathArr.forEach((p, i) => {
+            bc.innerHTML += ` / <span onclick="jump(${i})">${p}</span>`;
         });
     }
 
-    function renderBreadcrumbs(pathArr) {
-        const container = document.getElementById('breadcrumbs');
-        container.innerHTML = `<span class="breadcrumb-item" onclick="jumpTo(-1)">root</span>`;
-
-        pathArr.forEach((folder, index) => {
-            container.innerHTML += ` <span style="opacity:0.5">/</span> `;
-            if (index === pathArr.length - 1) {
-                container.innerHTML += `<span class="breadcrumb-current">${folder}</span>`;
-            } else {
-                container.innerHTML += `<span class="breadcrumb-item" onclick="jumpTo(${index})">${folder}</span>`;
-            }
-        });
+    function jump(index) {
+        currentPathArr = currentPathArr.slice(0, index + 1);
+        loadNav(currentPathArr);
     }
 
-    function jumpTo(index) {
-        pathHistory = pathHistory.slice(0, index + 1);
-        loadDirectory(pathHistory);
-    }
-
-    function goBack() {
-        pathHistory.pop();
-        loadDirectory(pathHistory);
-    }
-
-    // Initial Start
-    loadDirectory();
+    // Initial load
+    loadNav();
 </script>
 
 </body>
