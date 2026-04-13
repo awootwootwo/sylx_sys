@@ -12,6 +12,7 @@
         .step-active { color: #10b981; border-color: #10b981; }
         .step-inactive { color: #94a3b8; border-color: #e2e8f0; }
         .transition-all { transition: all 0.3s ease; }
+        [v-cloak] { display: none; }
     </style>
 </head>
 <body class="text-slate-900 overflow-x-hidden">
@@ -39,7 +40,7 @@
         <section id="page-home" class="p-12 max-w-6xl mx-auto animate-in fade-in duration-500">
             <div class="text-center mb-16">
                 <h1 class="text-5xl font-extrabold text-slate-900 mb-4">Unified Accounting & Collection</h1>
-                <p class="text-xl text-slate-500 max-w-2xl mx-auto">Seamlessly bridge the gap between sales invoicing and collection receipts in one high-fidelity workflow.</p>
+                <p class="text-xl text-slate-500 max-w-2xl mx-auto">Seamlessly bridge the gap between sales invoicing and collection receipts with automated browser-level persistence.</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8">
@@ -87,11 +88,13 @@
                 <div id="entry-step-1" class="p-8 space-y-6">
                     <div class="grid grid-cols-2 gap-6">
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase">Client</label>
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-bold text-slate-500 uppercase">Client</label>
+                                <button onclick="toggleClientModal()" class="text-[10px] text-emerald-600 font-bold hover:underline">+ Manage Clients</button>
+                            </div>
                             <select id="entry-client" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 bg-slate-50">
                                 <option value="">Select Client...</option>
-                                <option value="client-a" data-verified="true">Acme Corp (Verified)</option>
-                                <option value="client-b" data-verified="false">Beta Solutions (Unverified)</option>
+                                <!-- Dynamic options -->
                             </select>
                         </div>
                         <div class="space-y-2">
@@ -112,10 +115,10 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-500 uppercase flex items-center gap-2">
-                                1% Tax Payable 
+                                1.12% Tax Payable 
                                 <span id="tax-status" class="hidden text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded">AUTO</span>
                             </label>
-                            <div class="text-2xl font-bold text-slate-400">$<span id="entry-tax">0.00</span></div>
+                            <div class="text-2xl font-bold text-slate-400">₱<span id="entry-tax">0.00</span></div>
                         </div>
                     </div>
 
@@ -131,7 +134,7 @@
                     <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex justify-between items-center">
                         <div>
                             <p class="text-xs text-emerald-600 font-bold uppercase">Invoice Total</p>
-                            <p class="text-xl font-bold text-emerald-900" id="summary-total">$0.00</p>
+                            <p class="text-xl font-bold text-emerald-900" id="summary-total">₱0.00</p>
                         </div>
                         <i data-lucide="receipt" class="w-8 h-8 text-emerald-200"></i>
                     </div>
@@ -141,10 +144,6 @@
                             <h4 class="font-bold text-slate-800 flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full bg-blue-500"></span> Downpayment
                             </h4>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase">Date</label>
-                                <input type="date" class="w-full p-2 border rounded-lg text-sm">
-                            </div>
                             <div class="space-y-1">
                                 <label class="text-[10px] font-bold text-slate-400 uppercase">Amount</label>
                                 <input type="number" id="entry-dp" value="0" class="w-full p-2 border rounded-lg text-sm font-bold">
@@ -156,10 +155,6 @@
                                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Full Payment
                             </h4>
                             <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase">Date</label>
-                                <input type="date" class="w-full p-2 border rounded-lg text-sm">
-                            </div>
-                            <div class="space-y-1">
                                 <label class="text-[10px] font-bold text-slate-400 uppercase">Amount</label>
                                 <input type="number" id="entry-full" value="0" class="w-full p-2 border rounded-lg text-sm font-bold">
                             </div>
@@ -169,7 +164,7 @@
                     <div class="p-6 bg-slate-900 rounded-2xl text-white flex justify-between items-center">
                         <div>
                             <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Calculated Balance</p>
-                            <p class="text-3xl font-bold" id="entry-balance">$0.00</p>
+                            <p class="text-3xl font-bold" id="entry-balance">₱0.00</p>
                         </div>
                         <div id="balance-badge" class="px-4 py-2 bg-red-500 rounded-lg font-bold text-sm">UNPAID</div>
                     </div>
@@ -193,41 +188,61 @@
                     <h2 class="text-3xl font-bold text-slate-900">Accountant Dashboard</h2>
                     <p class="text-slate-500">Master Ledger and Analytical View</p>
                 </div>
-                <button onclick="showPage('entry')" class="p-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm hover:bg-emerald-700 flex items-center gap-2">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Create New Invoice
-                </button>
+                <div class="flex gap-3">
+                    <button onclick="exportToCSV()" class="p-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 flex items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> Export CSV
+                    </button>
+                    <button onclick="showPage('entry')" class="p-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm hover:bg-emerald-700 flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Create New
+                    </button>
+                </div>
             </div>
 
             <!-- Analytics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <p class="text-xs font-bold text-slate-400 uppercase mb-2">Total AR Balance</p>
-                    <p class="text-2xl font-extrabold" id="dash-ar">$0.00</p>
+                    <p class="text-2xl font-extrabold" id="dash-ar">₱0.00</p>
                     <div class="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden">
-                        <div class="h-full bg-red-400 w-3/4"></div>
+                        <div id="ar-progress" class="h-full bg-red-400 transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Verified Tax (1%)</p>
-                    <p class="text-2xl font-extrabold" id="dash-tax">$0.00</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Verified Tax (1.12%)</p>
+                    <p class="text-2xl font-extrabold" id="dash-tax">₱0.00</p>
                     <p class="text-[10px] text-emerald-600 mt-2 font-bold flex items-center gap-1">
                         <i data-lucide="shield-check" class="w-3 h-3"></i> Automated Liability
                     </p>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Collection Velocity</p>
-                    <p class="text-2xl font-extrabold">84%</p>
-                    <p class="text-[10px] text-slate-400 mt-2 font-medium italic">Avg. 18 days to pay</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Ledger Entries</p>
+                    <p class="text-2xl font-extrabold" id="dash-count">0</p>
+                    <p class="text-[10px] text-slate-400 mt-2 font-medium italic">Synced to browser storage</p>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Monthly Sales Target</p>
-                    <div class="flex items-end gap-1">
-                        <p class="text-2xl font-extrabold">$142k</p>
-                        <p class="text-sm text-slate-300 mb-1">/ 200k</p>
-                    </div>
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Current Period Sales</p>
+                    <p class="text-2xl font-extrabold" id="dash-sales">₱0.00</p>
                     <div class="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden">
                         <div class="h-full bg-emerald-500 w-[71%]"></div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl border border-slate-200">
+                <div class="flex-1 relative">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                    <input type="text" id="filter-search" placeholder="Search clients, particulars, dates..." 
+                           class="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                           oninput="renderLedger()">
+                </div>
+                <div class="w-48">
+                    <select id="filter-status" class="w-full p-2 bg-slate-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none" onchange="renderLedger()">
+                        <option value="all">All Statuses</option>
+                        <option value="unpaid">Unpaid Only</option>
+                        <option value="partial">Partial Only</option>
+                        <option value="cleared">Cleared Only</option>
+                    </select>
                 </div>
             </div>
 
@@ -235,9 +250,7 @@
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-6 border-b border-slate-100 flex justify-between items-center">
                     <h3 class="font-bold">Transaction Ledger</h3>
-                    <div class="flex gap-2">
-                        <span class="px-3 py-1 bg-slate-100 rounded-full text-xs font-medium text-slate-600">All Transactions</span>
-                    </div>
+                    <button onclick="clearDatabase()" class="text-[10px] text-red-500 font-bold uppercase hover:underline">Clear Database</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
@@ -249,12 +262,13 @@
                                 <th class="px-6 py-4">Total Amount</th>
                                 <th class="px-6 py-4">Balance</th>
                                 <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Action</th>
                             </tr>
                         </thead>
                         <tbody id="ledger-body" class="divide-y divide-slate-100">
                             <!-- Data injected here -->
                             <tr id="empty-row">
-                                <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">No transactions recorded yet. Use the Entry Module to add data.</td>
+                                <td colspan="7" class="px-6 py-12 text-center text-slate-400 italic">No transactions recorded yet. Use the Entry Module to add data.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -263,46 +277,234 @@
         </section>
     </div>
 
+    <!-- Client Management Modal -->
+    <div id="client-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] hidden items-center justify-center p-6">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-900">Manage Clients</h3>
+                <button onclick="toggleClientModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="space-y-3">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Add New Client</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-client-name" placeholder="Client Name" class="flex-1 p-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500/20">
+                        <label class="flex items-center gap-1 cursor-pointer">
+                            <input type="checkbox" id="new-client-verified" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+                            <span class="text-[10px] font-bold text-slate-500">Verified</span>
+                        </label>
+                        <button onclick="addClient()" class="bg-emerald-600 text-white p-2 rounded-lg hover:bg-emerald-700 transition-colors">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="max-h-60 overflow-y-auto space-y-2 pr-2" id="modal-client-list">
+                    <!-- Client items here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] hidden items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+            <div class="p-6 border-b border-slate-100 bg-slate-900 text-white">
+                <h3 class="font-bold">Record Payment</h3>
+                <p class="text-xs text-slate-400 mt-1" id="payment-client-info">Client Name</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-500">Current Balance:</span>
+                    <span class="font-bold text-slate-900" id="payment-current-balance">₱0.00</span>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase">Payment Amount</label>
+                    <input type="number" id="payment-input" class="w-full p-3 border rounded-xl text-xl font-bold outline-none focus:ring-2 focus:ring-emerald-500/20" placeholder="0.00">
+                </div>
+                <button onclick="processQuickPayment()" class="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all">
+                    Confirm Payment
+                </button>
+                <button onclick="togglePaymentModal()" class="w-full text-slate-400 text-sm font-medium hover:text-slate-600">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Success Toast -->
     <div id="success-toast" class="fixed bottom-8 right-8 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 translate-y-32 transition-all duration-500 opacity-0 z-[100]">
         <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
             <i data-lucide="check" class="w-5 h-5"></i>
         </div>
         <div>
-            <p class="font-bold text-sm">Transaction Posted</p>
-            <p class="text-xs text-slate-400">Master ledger updated successfully.</p>
+            <p class="font-bold text-sm" id="toast-title">Transaction Posted</p>
+            <p class="text-xs text-slate-400" id="toast-msg">Browser storage updated successfully.</p>
         </div>
     </div>
 
     <script>
-        // State Management
+        // --- DATA STATE ---
+        let records = [];
+        let clients = [
+            { id: 'c1', name: 'Acme Corp', verified: true },
+            { id: 'c2', name: 'Beta Solutions', verified: false }
+        ];
+        
         let currentEntry = {
-            client: '',
-            clientName: '',
-            isVerified: false,
-            date: '',
-            desc: '',
-            amount: 0,
-            tax: 0,
-            dp: 0,
-            full: 0,
-            balance: 0
+            client: '', clientName: '', isVerified: false, date: '',
+            desc: '', amount: 0, tax: 0, dp: 0, full: 0, balance: 0
         };
 
-        const records = [];
+        let activePaymentId = null;
 
-        // UI Routing
+        // --- BROWSER STORAGE CORE ---
+        function saveToBrowser() {
+            localStorage.setItem('finscale_data_v1', JSON.stringify(records));
+            localStorage.setItem('finscale_clients_v1', JSON.stringify(clients));
+        }
+
+        function loadFromBrowser() {
+            const savedRecords = localStorage.getItem('finscale_data_v1');
+            const savedClients = localStorage.getItem('finscale_clients_v1');
+            
+            if (savedRecords) records = JSON.parse(savedRecords);
+            if (savedClients) clients = JSON.parse(savedClients);
+            
+            updateClientDropdown();
+            renderLedger();
+        }
+
+        // --- CLIENT MANAGEMENT ---
+        function toggleClientModal() {
+            const modal = document.getElementById('client-modal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+            if(!modal.classList.contains('hidden')) renderModalClientList();
+        }
+
+        function addClient() {
+            const name = document.getElementById('new-client-name').value.trim();
+            const verified = document.getElementById('new-client-verified').checked;
+            if(!name) return;
+
+            clients.push({ id: 'c' + Date.now(), name, verified });
+            document.getElementById('new-client-name').value = '';
+            document.getElementById('new-client-verified').checked = false;
+            
+            saveToBrowser();
+            updateClientDropdown();
+            renderModalClientList();
+        }
+
+        function removeClient(id) {
+            if(confirm("Are you sure? Existing records for this client won't be deleted, but they won't show as a selection.")) {
+                clients = clients.filter(c => c.id !== id);
+                saveToBrowser();
+                updateClientDropdown();
+                renderModalClientList();
+            }
+        }
+
+        function updateClientDropdown() {
+            const select = document.getElementById('entry-client');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Select Client...</option>';
+            clients.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name + (c.verified ? ' (Verified)' : ' (Unverified)');
+                opt.dataset.verified = c.verified;
+                select.appendChild(opt);
+            });
+            select.value = currentVal;
+        }
+
+        function renderModalClientList() {
+            const list = document.getElementById('modal-client-list');
+            list.innerHTML = '';
+            clients.forEach(c => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100";
+                div.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-semibold text-slate-700">${c.name}</span>
+                        ${c.verified ? '<i data-lucide="shield-check" class="w-3 h-3 text-emerald-500"></i>' : ''}
+                    </div>
+                    <button onclick="removeClient('${c.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                `;
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        // --- PAYMENT LOGIC ---
+        function togglePaymentModal(id = null) {
+            const modal = document.getElementById('payment-modal');
+            activePaymentId = id;
+            if(id) {
+                const record = records.find(r => r.id === id);
+                document.getElementById('payment-client-info').innerText = `${record.clientName} - ${record.desc}`;
+                document.getElementById('payment-current-balance').innerText = formatCurrency(record.balance);
+                document.getElementById('payment-input').value = record.balance;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function processQuickPayment() {
+            const amount = parseFloat(document.getElementById('payment-input').value) || 0;
+            const recordIdx = records.findIndex(r => r.id === activePaymentId);
+            
+            if(recordIdx > -1 && amount > 0) {
+                const record = records[recordIdx];
+                const payment = Math.min(amount, record.balance);
+                record.full += payment; // Treat as additional full payment for ledger simplicity
+                record.balance -= payment;
+                
+                saveToBrowser();
+                renderLedger();
+                togglePaymentModal();
+                showToast("Payment Recorded", `Updated balance: ${formatCurrency(record.balance)}`);
+            }
+        }
+
+        // --- EXPORT TO CSV ---
+        function exportToCSV() {
+            if (records.length === 0) {
+                alert("No transactions to export.");
+                return;
+            }
+            let csv = "Client,Date,Particulars,TotalAmount,Balance,Tax,Verified,ID\n";
+            records.forEach(r => {
+                csv += [`"${r.clientName}"`, r.date, `"${r.desc.replace(/"/g, '""')}"`, r.amount, r.balance, r.tax, r.isVerified, r.id].join(",") + "\n";
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "FinScale_Ledger_Export.csv";
+            link.click();
+        }
+
+        function clearDatabase() {
+            if(confirm("Are you sure you want to delete ALL data? This cannot be undone.")) {
+                records = [];
+                saveToBrowser();
+                renderLedger();
+            }
+        }
+
+        // --- UI ROUTING ---
         function showPage(pageId) {
             ['home', 'entry', 'dashboard'].forEach(p => {
                 document.getElementById(`page-${p}`).classList.add('hidden');
             });
             document.getElementById(`page-${pageId}`).classList.remove('hidden');
-            
             if(pageId === 'dashboard') renderLedger();
             window.scrollTo(0,0);
         }
 
-        // Wizard Logic
+        // --- WIZARD LOGIC ---
         function goToStep(step) {
             const s1 = document.getElementById('entry-step-1');
             const s2 = document.getElementById('entry-step-2');
@@ -310,19 +512,19 @@
             const l2 = document.getElementById('step-2-label');
 
             if (step === 2) {
-                // Capture first step data
                 const clientEl = document.getElementById('entry-client');
+                if(!clientEl.value) { alert("Select a client first."); return; }
+                
                 currentEntry.client = clientEl.value;
-                currentEntry.clientName = clientEl.options[clientEl.selectedIndex].text;
+                currentEntry.clientName = clientEl.options[clientEl.selectedIndex].text.replace(/ \(Verified\)| \(Unverified\)/, '');
                 currentEntry.isVerified = clientEl.options[clientEl.selectedIndex].dataset.verified === 'true';
                 currentEntry.date = document.getElementById('entry-date').value;
                 currentEntry.desc = document.getElementById('entry-desc').value;
                 currentEntry.amount = parseFloat(document.getElementById('entry-amount').value) || 0;
-                currentEntry.tax = parseFloat(document.getElementById('entry-tax').innerText) || 0;
+                currentEntry.tax = parseFloat(document.getElementById('entry-tax').innerText.replace(/,/g, '')) || 0;
 
-                // Validation
-                if(!currentEntry.client || !currentEntry.date || currentEntry.amount <= 0) {
-                    alert("Please fill in all required fields (Client, Date, and Amount > 0)");
+                if(!currentEntry.date || currentEntry.amount <= 0) {
+                    alert("Fill in Date and Amount (> 0)");
                     return;
                 }
 
@@ -341,9 +543,8 @@
             }
         }
 
-        // Logic Helpers
         function formatCurrency(num) {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+            return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(num);
         }
 
         function updateEntryBalance() {
@@ -357,7 +558,6 @@
             currentEntry.balance = balance;
 
             document.getElementById('entry-balance').innerText = formatCurrency(balance);
-            
             const badge = document.getElementById('balance-badge');
             if (balance === 0) {
                 badge.innerText = 'CLEARED';
@@ -371,37 +571,30 @@
             }
         }
 
-        // Input Observers
-        document.getElementById('entry-amount').addEventListener('input', (e) => {
-            const amt = parseFloat(e.target.value) || 0;
-            const clientEl = document.getElementById('entry-client');
-            const isVerified = clientEl.options[clientEl.selectedIndex]?.dataset.verified === 'true';
-            const tax = isVerified ? amt * 0.01 : 0;
-            document.getElementById('entry-tax').innerText = tax.toFixed(2);
-            document.getElementById('tax-status').classList.toggle('hidden', !isVerified);
-        });
-
-        document.getElementById('entry-client').addEventListener('change', () => {
-            // Trigger tax refresh
-            document.getElementById('entry-amount').dispatchEvent(new Event('input'));
-        });
-
-        document.getElementById('entry-dp').addEventListener('input', updateEntryBalance);
-        document.getElementById('entry-full').addEventListener('input', updateEntryBalance);
-
-        // Data Submission
         function submitData() {
             records.push({ ...currentEntry, id: Date.now() });
-            
-            // Show Success
-            const toast = document.getElementById('success-toast');
-            toast.classList.remove('translate-y-32', 'opacity-0');
-            
+            saveToBrowser();
+            showToast("Transaction Posted", "Ledger updated successfully.");
             setTimeout(() => {
-                toast.classList.add('translate-y-32', 'opacity-0');
                 showPage('dashboard');
                 resetWizard();
-            }, 1500);
+            }, 1000);
+        }
+
+        function showToast(title, msg) {
+            const toast = document.getElementById('success-toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-32', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-32', 'opacity-0'), 2500);
+        }
+
+        function deleteRecord(id) {
+            if(confirm("Delete this entry?")) {
+                records = records.filter(r => r.id !== id);
+                saveToBrowser();
+                renderLedger();
+            }
         }
 
         function resetWizard() {
@@ -418,58 +611,116 @@
         function renderLedger() {
             const tbody = document.getElementById('ledger-body');
             const empty = document.getElementById('empty-row');
+            const searchTerm = document.getElementById('filter-search').value.toLowerCase();
+            const statusFilter = document.getElementById('filter-status').value;
             
-            if (records.length === 0) {
-                empty.classList.remove('hidden');
-                return;
-            }
-            empty.classList.add('hidden');
-            
-            // Clear existing rows (except empty)
+            // Filter records
+            const filtered = records.filter(r => {
+                const matchesSearch = 
+                    r.clientName.toLowerCase().includes(searchTerm) || 
+                    r.desc.toLowerCase().includes(searchTerm) || 
+                    r.date.includes(searchTerm);
+                
+                const status = r.balance === 0 ? 'cleared' : (r.balance < r.amount ? 'partial' : 'unpaid');
+                const matchesStatus = statusFilter === 'all' || statusFilter === status;
+                
+                return matchesSearch && matchesStatus;
+            });
+
+            // Cleanup existing rows
             Array.from(tbody.children).forEach(child => {
                 if(child.id !== 'empty-row') child.remove();
             });
 
-            let totalAR = 0;
-            let totalTax = 0;
+            if (filtered.length === 0) {
+                empty.classList.remove('hidden');
+                updateDashboard(0, 0, 0, 0);
+                return;
+            }
+            empty.classList.add('hidden');
 
-            records.forEach(r => {
+            let totalAR = 0, totalTax = 0, totalSales = 0;
+
+            filtered.forEach(r => {
                 totalAR += r.balance;
                 totalTax += r.tax;
+                totalSales += r.amount;
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition-colors";
-                
-                const statusClass = r.balance === 0 ? 'bg-green-100 text-green-700' : (r.balance < r.amount ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700');
-                const statusText = r.balance === 0 ? 'Cleared' : (r.balance < r.amount ? 'Partial' : 'Overdue');
+                tr.className = "hover:bg-slate-50 transition-colors group";
+                const isCleared = r.balance === 0;
+                const isPartial = r.balance < r.amount && r.balance > 0;
+                const statusClass = isCleared ? 'bg-green-100 text-green-700' : (isPartial ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700');
+                const statusText = isCleared ? 'Cleared' : (isPartial ? 'Partial' : 'Unpaid');
 
                 tr.innerHTML = `
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-slate-900">${r.clientName}</span>
-                            ${r.isVerified ? '<i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i>' : ''}
+                            ${r.isVerified ? '<i data-lucide="shield-check" class="w-3 h-3 text-emerald-500"></i>' : ''}
                         </div>
                     </td>
                     <td class="px-6 py-4 text-sm text-slate-500">${r.date}</td>
-                    <td class="px-6 py-4 text-sm text-slate-500 truncate max-w-[120px]">${r.desc || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-slate-500 truncate max-w-[150px]">${r.desc || '-'}</td>
                     <td class="px-6 py-4 text-sm font-semibold">${formatCurrency(r.amount)}</td>
-                    <td class="px-6 py-4">
-                        <span class="text-sm font-black text-slate-900">${formatCurrency(r.balance)}</span>
-                    </td>
+                    <td class="px-6 py-4 text-sm font-black text-slate-900">${formatCurrency(r.balance)}</td>
                     <td class="px-6 py-4">
                         <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            ${!isCleared ? `
+                                <button onclick="togglePaymentModal(${r.id})" class="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2 py-1 rounded">
+                                    Pay
+                                </button>
+                            ` : ''}
+                            <button onclick="deleteRecord(${r.id})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('dash-ar').innerText = formatCurrency(totalAR);
-            document.getElementById('dash-tax').innerText = formatCurrency(totalTax);
+            // Update stats based on full records (or filtered? Usually dash shows global status)
+            let globalAR = 0, globalTax = 0, globalSales = 0;
+            records.forEach(r => { globalAR += r.balance; globalTax += r.tax; globalSales += r.amount; });
+            updateDashboard(globalAR, globalTax, records.length, globalSales);
             lucide.createIcons();
         }
 
-        // Init
-        lucide.createIcons();
+        function updateDashboard(ar, tax, count, sales) {
+            document.getElementById('dash-ar').innerText = formatCurrency(ar);
+            document.getElementById('dash-tax').innerText = formatCurrency(tax);
+            document.getElementById('dash-count').innerText = count;
+            document.getElementById('dash-sales').innerText = formatCurrency(sales);
+            const progress = sales > 0 ? (ar / sales) * 100 : 0;
+            document.getElementById('ar-progress').style.width = `${Math.min(100, progress)}%`;
+        }
+
+        // --- EVENT LISTENERS ---
+        document.getElementById('entry-amount').addEventListener('input', (e) => {
+            const amt = parseFloat(e.target.value) || 0;
+            const clientEl = document.getElementById('entry-client');
+            const isVerified = clientEl.options[clientEl.selectedIndex]?.dataset.verified === 'true';
+            const tax = isVerified ? amt * 0.0112 : 0;
+            document.getElementById('entry-tax').innerText = tax.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('tax-status').classList.toggle('hidden', !isVerified);
+        });
+
+        document.getElementById('entry-client').addEventListener('change', () => {
+            document.getElementById('entry-amount').dispatchEvent(new Event('input'));
+        });
+
+        document.getElementById('entry-dp').addEventListener('input', updateEntryBalance);
+        document.getElementById('entry-full').addEventListener('input', updateEntryBalance);
+
+        // --- INIT ---
+        window.onload = () => {
+            loadFromBrowser();
+            lucide.createIcons();
+        };
     </script>
 </body>
 </html>
