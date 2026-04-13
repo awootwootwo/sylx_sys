@@ -3,145 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repository Navigator</title>
+    <title>GitHub Repo Explorer</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --bg: #f8fafc;
-            --text: #1e293b;
-            --card-bg: #ffffff;
-            --border: #e2e8f0;
+            --bg-color: #f6f8fa;
+            --border-color: #d0d7de;
+            --link-color: #0969da;
+            --text-main: #1f2328;
+            --hover-bg: #f3f4f6;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 40px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
             justify-content: center;
+            padding: 40px 20px;
+            margin: 0;
         }
+
         .container {
             width: 100%;
             max-width: 900px;
-        }
-        header {
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 10px;
-        }
-        h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            color: var(--primary);
-        }
-        .search-box {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
+            background: white;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
+            box-shadow: 0 1px 3px rgba(31,35,40,0.12);
+            overflow: hidden;
         }
-        .nav-section {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+        /* Header & Breadcrumbs */
+        .header {
+            padding: 16px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
         }
-        .file-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+
+        .repo-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
         }
-        .file-item {
-            padding: 10px;
-            border-bottom: 1px solid var(--border);
+
+        .breadcrumbs {
             display: flex;
+            gap: 4px;
+            font-size: 14px;
+            color: var(--link-color);
             align-items: center;
         }
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        .file-item a {
-            text-decoration: none;
-            color: var(--primary);
-            font-weight: 500;
-            flex-grow: 1;
-        }
-        .file-item a:hover {
-            text-decoration: underline;
-        }
-        .folder-tag {
-            font-size: 0.8rem;
-            background: #f1f5f9;
-            padding: 2px 8px;
+
+        .breadcrumbs span {
+            cursor: pointer;
+            padding: 2px 4px;
             border-radius: 4px;
-            color: #64748b;
-            margin-right: 15px;
-            min-width: 120px;
-            text-align: center;
         }
-        .no-results {
-            display: none;
-            padding: 20px;
+
+        .breadcrumbs span:hover {
+            text-decoration: underline;
+            background: var(--hover-bg);
+        }
+
+        .breadcrumbs .current {
+            color: var(--text-main);
+            font-weight: 400;
+            cursor: default;
+        }
+
+        .breadcrumbs .current:hover {
+            text-decoration: none;
+            background: none;
+        }
+
+        /* File List */
+        .file-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .file-item {
+            display: grid;
+            grid-template-columns: 30px 1fr 120px;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #eff1f3;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .file-item:last-child { border-bottom: none; }
+
+        .file-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .icon { font-size: 18px; }
+        .file-name { font-size: 14px; color: var(--text-main); }
+        .file-type { font-size: 12px; color: #636c76; text-align: right; }
+
+        .loading {
+            padding: 40px;
             text-align: center;
-            color: #94a3b8;
+            color: #636c76;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Project Repository Navigator</h1>
-        </header>
 
-        <input type="text" id="searchInput" class="search-box" placeholder="Search files or folders..." onkeyup="filterFiles()">
-
-        <div class="nav-section">
-            <ul class="file-list" id="fileList">
-                <!-- This list would be populated dynamically or manually -->
-                <li class="file-item" data-name="index.html">
-                    <span class="folder-tag">Root</span>
-                    <a href="index.html">index.html (Current)</a>
-                </li>
-                <!-- EXAMPLE PLACEHOLDERS -->
-                <li class="file-item" data-name="dashboard.html">
-                    <span class="folder-tag">Templates</span>
-                    <a href="templates/dashboard.html">dashboard.html</a>
-                </li>
-                <li class="file-item" data-name="login.html">
-                    <span class="folder-tag">Auth</span>
-                    <a href="auth/login.html">login.html</a>
-                </li>
-            </ul>
-            <div id="noResults" class="no-results">No matching files found.</div>
-        </div>
+<div class="container">
+    <div class="header">
+        <div class="repo-title" id="repo-name">Loading Repository...</div>
+        <div class="breadcrumbs" id="breadcrumbs"></div>
     </div>
+    <div id="explorer-body">
+        <div class="loading">Fetching data from GitHub...</div>
+    </div>
+</div>
 
-    <script>
-        function filterFiles() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toLowerCase();
-            const ul = document.getElementById('fileList');
-            const li = ul.getElementsByTagName('li');
-            const noResults = document.getElementById('noResults');
-            let visibleCount = 0;
+<script>
+    // Configuration - Change these to target any public repo
+    const CONFIG = {
+        owner: 'microsoft',
+        repo: 'vscode',
+        branch: 'main'
+    };
 
-            for (let i = 0; i < li.length; i++) {
-                const text = li[i].textContent || li[i].innerText;
-                if (text.toLowerCase().indexOf(filter) > -1) {
-                    li[i].style.display = "";
-                    visibleCount++;
+    let currentPath = [];
+
+    async function fetchContents(pathArray = []) {
+        const pathString = pathArray.join('/');
+        const url = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${pathString}`;
+        
+        const body = document.getElementById('explorer-body');
+        body.innerHTML = '<div class="loading">Loading...</div>';
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Repo not found or API limit reached');
+            
+            const data = await response.json();
+            renderUI(data);
+            renderBreadcrumbs(pathArray);
+            document.getElementById('repo-name').innerText = `${CONFIG.owner} / ${CONFIG.repo}`;
+        } catch (err) {
+            body.innerHTML = `<div class="loading" style="color: red;">Error: ${err.message}</div>`;
+        }
+    }
+
+    function renderUI(files) {
+        const body = document.getElementById('explorer-body');
+        const list = document.createElement('div');
+        list.className = 'file-list';
+
+        // Sort: Folders first, then files
+        files.sort((a, b) => (b.type === 'dir') - (a.type === 'dir'));
+
+        files.forEach(file => {
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            
+            const isDir = file.type === 'dir';
+            const icon = isDir ? '📁' : '📄';
+
+            item.innerHTML = `
+                <span class="icon">${icon}</span>
+                <span class="file-name">${file.name}</span>
+                <span class="file-type">${isDir ? 'Directory' : 'File'}</span>
+            `;
+
+            item.onclick = () => {
+                if (isDir) {
+                    currentPath.push(file.name);
+                    fetchContents(currentPath);
                 } else {
-                    li[i].style.display = "none";
+                    window.open(file.html_url, '_blank');
                 }
+            };
+
+            list.appendChild(item);
+        });
+
+        body.innerHTML = '';
+        body.appendChild(list);
+    }
+
+    function renderBreadcrumbs(pathArray) {
+        const container = document.getElementById('breadcrumbs');
+        container.innerHTML = '<span onclick="navigateToStep(-1)">root</span>';
+
+        pathArray.forEach((folder, index) => {
+            const separator = document.createElement('b');
+            separator.innerText = ' / ';
+            separator.style.color = '#d0d7de';
+            
+            const span = document.createElement('span');
+            span.innerText = folder;
+            
+            if (index === pathArray.length - 1) {
+                span.className = 'current';
+            } else {
+                span.onclick = () => navigateToStep(index);
             }
 
-            noResults.style.display = visibleCount === 0 ? "block" : "none";
-        }
-    </script>
+            container.appendChild(separator);
+            container.appendChild(span);
+        });
+    }
+
+    function navigateToStep(index) {
+        // -1 returns to root, 0 returns to first folder, etc.
+        currentPath = currentPath.slice(0, index + 1);
+        fetchContents(currentPath);
+    }
+
+    // Initial load
+    fetchContents();
+</script>
+
 </body>
 </html>
