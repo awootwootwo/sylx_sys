@@ -3,145 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repository Navigator</title>
+    <title>Finance Dashboard</title>
     <style>
-        :root {
-            --primary: #2563eb;
-            --bg: #f8fafc;
-            --text: #1e293b;
-            --card-bg: #ffffff;
-            --border: #e2e8f0;
-        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 40px;
+            background-color: #f4f7f6;
             display: flex;
             justify-content: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 900px;
-        }
-        header {
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 10px;
-        }
-        h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            color: var(--primary);
-        }
-        .search-box {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        .nav-section {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .file-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .file-item {
-            padding: 10px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
             align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        .file-item:last-child {
-            border-bottom: none;
+
+        .nav-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
         }
-        .file-item a {
+
+        h2 { color: #2c3e50; margin-bottom: 1rem; }
+        p { color: #7f8c8d; margin-bottom: 2rem; }
+
+        .btn-navigate {
+            display: inline-block;
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 24px;
             text-decoration: none;
-            color: var(--primary);
-            font-weight: 500;
-            flex-grow: 1;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s ease;
         }
-        .file-item a:hover {
-            text-decoration: underline;
-        }
-        .folder-tag {
-            font-size: 0.8rem;
-            background: #f1f5f9;
-            padding: 2px 8px;
-            border-radius: 4px;
-            color: #64748b;
-            margin-right: 15px;
-            min-width: 120px;
-            text-align: center;
-        }
-        .no-results {
-            display: none;
-            padding: 20px;
-            text-align: center;
-            color: #94a3b8;
+
+        .btn-navigate:hover {
+            background-color: #219150;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Project Repository Navigator</h1>
-        </header>
 
-        <input type="text" id="searchInput" class="search-box" placeholder="Search files or folders..." onkeyup="filterFiles()">
-
-        <div class="nav-section">
-            <ul class="file-list" id="fileList">
-                <!-- This list would be populated dynamically or manually -->
-                <li class="file-item" data-name="index.html">
-                    <span class="folder-tag">Root</span>
-                    <a href="index.html">index.html (Current)</a>
-                </li>
-                <!-- EXAMPLE PLACEHOLDERS -->
-                <li class="file-item" data-name="dashboard.html">
-                    <span class="folder-tag">Templates</span>
-                    <a href="templates/dashboard.html">dashboard.html</a>
-                </li>
-                <li class="file-item" data-name="login.html">
-                    <span class="folder-tag">Auth</span>
-                    <a href="auth/login.html">login.html</a>
-                </li>
-            </ul>
-            <div id="noResults" class="no-results">No matching files found.</div>
-        </div>
+    <div class="nav-card">
+        <h2>Accounting Module</h2>
+        <p>Access the latest financial drafts and ledger entries.</p>
+        <a href="/Accounting_Draft.html" class="btn-navigate">Open Accounting Draft</a>
     </div>
 
-    <script>
-        function filterFiles() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toLowerCase();
-            const ul = document.getElementById('fileList');
-            const li = ul.getElementsByTagName('li');
-            const noResults = document.getElementById('noResults');
-            let visibleCount = 0;
-
-            for (let i = 0; i < li.length; i++) {
-                const text = li[i].textContent || li[i].innerText;
-                if (text.toLowerCase().indexOf(filter) > -1) {
-                    li[i].style.display = "";
-                    visibleCount++;
-                } else {
-                    li[i].style.display = "none";
-                }
-            }
-
-            noResults.style.display = visibleCount === 0 ? "block" : "none";
-        }
-    </script>
 </body>
 </html>
