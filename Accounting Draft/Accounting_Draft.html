@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinScale | Unified Accounting & Collection</title>
+    <title>Siluxnt | Automated Accounting System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
             <div class="w-8 h-8 rounded bg-emerald-600 flex items-center justify-center">
                 <i data-lucide="layers" class="w-5 h-5 text-white"></i>
             </div>
-            <span class="font-bold text-xl tracking-tight text-slate-900">FinScale</span>
+            <span class="font-bold text-xl tracking-tight text-slate-900">Siluxnt</span>
         </div>
         <div class="flex items-center gap-6">
             <button onclick="showPage('home')" class="text-sm font-medium text-slate-500 hover:text-emerald-600">Home</button>
@@ -39,7 +39,7 @@
         <!-- PAGE 1: HOME -->
         <section id="page-home" class="p-12 max-w-6xl mx-auto animate-in fade-in duration-500">
             <div class="text-center mb-16">
-                <h1 class="text-5xl font-extrabold text-slate-900 mb-4">Unified Accounting & Collection</h1>
+                <h1 class="text-5xl font-extrabold text-slate-900 mb-4">Automated Accounting System</h1>
                 <p class="text-xl text-slate-500 max-w-2xl mx-auto">Seamlessly bridge the gap between sales invoicing and collection receipts with automated browser-level persistence.</p>
             </div>
 
@@ -357,13 +357,13 @@
 
         // --- BROWSER STORAGE CORE ---
         function saveToBrowser() {
-            localStorage.setItem('finscale_data_v1', JSON.stringify(records));
-            localStorage.setItem('finscale_clients_v1', JSON.stringify(clients));
+            localStorage.setItem('Siluxnt_data_v1', JSON.stringify(records));
+            localStorage.setItem('Siluxnt_clients_v1', JSON.stringify(clients));
         }
 
         function loadFromBrowser() {
-            const savedRecords = localStorage.getItem('finscale_data_v1');
-            const savedClients = localStorage.getItem('finscale_clients_v1');
+            const savedRecords = localStorage.getItem('Siluxnt_data_v1');
+            const savedClients = localStorage.getItem('Siluxnt_clients_v1');
             
             if (savedRecords) records = JSON.parse(savedRecords);
             if (savedClients) clients = JSON.parse(savedClients);
@@ -482,7 +482,7 @@
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "FinScale_Ledger_Export.csv";
+            link.download = "Siluxnt_Ledger_Export.csv";
             link.click();
         }
 
