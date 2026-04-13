@@ -3,183 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sylx_Sys Live Navigator</title>
+    <title>Finance Dashboard</title>
     <style>
-        :root {
-            --accent: #6366f1;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text-dim: #94a3b8;
-            --text-bright: #f8fafc;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text-bright);
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
-        .nav-container {
-            width: 100%;
-            max-width: 600px;
-            background: var(--card);
+        .nav-card {
+            background: white;
+            padding: 2rem;
             border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
         }
 
-        .header {
-            border-bottom: 1px solid #334155;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
+        h2 { color: #2c3e50; margin-bottom: 1rem; }
+        p { color: #7f8c8d; margin-bottom: 2rem; }
 
-        .status-bar {
-            font-size: 12px;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: bold;
-        }
-
-        .breadcrumb {
-            margin-top: 5px;
-            font-size: 14px;
-            color: var(--text-dim);
-        }
-
-        .breadcrumb span { cursor: pointer; }
-        .breadcrumb span:hover { color: var(--accent); }
-
-        .file-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background: #2d3748;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .btn-navigate {
+            display: inline-block;
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 24px;
             text-decoration: none;
-            color: inherit;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s ease;
         }
 
-        .nav-item:hover {
-            background: var(--accent);
-            transform: translateX(5px);
+        .btn-navigate:hover {
+            background-color: #219150;
         }
-
-        .icon { font-size: 20px; margin-right: 15px; }
-        .details { flex-grow: 1; }
-        .file-name { font-size: 14px; font-weight: 500; }
-        .path-hint { font-size: 11px; color: var(--text-dim); }
-        .nav-item:hover .path-hint { color: #e0e7ff; }
-
-        .empty-msg { text-align: center; padding: 20px; color: var(--text-dim); }
     </style>
 </head>
 <body>
 
-<div class="nav-container">
-    <div class="header">
-        <div class="status-bar">● Live Site Explorer</div>
-        <div class="breadcrumb" id="breadcrumb">root</div>
+    <div class="nav-card">
+        <h2>Accounting Module</h2>
+        <p>Access the latest financial drafts and ledger entries.</p>
+        <a href="/Accounting_Draft.html" class="btn-navigate">Open Accounting Draft</a>
     </div>
-
-    <div id="file-list" class="file-list">
-        </div>
-</div>
-
-<script>
-    const REPO_OWNER = 'awootwootwo';
-    const REPO_NAME = 'sylx_sys';
-    
-    // Set this to your local server address or your production domain
-    const BASE_URL = window.location.origin; 
-
-    let currentPathArr = [];
-
-    async function loadNav(pathArr = []) {
-        const pathString = pathArr.join('/');
-        const apiUri = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${pathString}`;
-        const listContainer = document.getElementById('file-list');
-
-        try {
-            const res = await fetch(apiUri);
-            const data = await res.json();
-            
-            renderBreadcrumb(pathArr);
-            
-            listContainer.innerHTML = '';
-            
-            // Filter to show directories or specific file types you want to navigate to
-            data.sort((a, b) => (b.type === 'dir') - (a.type === 'dir'));
-
-            data.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'nav-item';
-                
-                const isDir = item.type === 'dir';
-                const icon = isDir ? '📂' : '🔗';
-                
-                // Logic: If it's a directory, we drill down. 
-                // If it's a file, we treat it as a route.
-                div.innerHTML = `
-                    <div class="icon">${icon}</div>
-                    <div class="details">
-                        <div class="file-name">${item.name}</div>
-                        <div class="path-hint">${isDir ? 'View Sub-pages' : 'Go to Page'}</div>
-                    </div>
-                `;
-
-                div.onclick = () => {
-                    if (isDir) {
-                        currentPathArr.push(item.name);
-                        loadNav(currentPathArr);
-                    } else {
-                        // NAVIGATION LOGIC: 
-                        // We strip the extension (like .html or .py) to try and match your routes
-                        const routeName = item.name.replace(/\.[^/.]+$/, "");
-                        const targetUrl = `${BASE_URL}/${currentPathArr.join('/')}/${routeName}`;
-                        
-                        console.log("Navigating to:", targetUrl);
-                        window.location.href = targetUrl; 
-                    }
-                };
-                listContainer.appendChild(div);
-            });
-
-        } catch (e) {
-            listContainer.innerHTML = '<div class="empty-msg">Error connecting to repository.</div>';
-        }
-    }
-
-    function renderBreadcrumb(pathArr) {
-        const bc = document.getElementById('breadcrumb');
-        bc.innerHTML = '<span onclick="jump( -1 )">root</span>';
-        pathArr.forEach((p, i) => {
-            bc.innerHTML += ` / <span onclick="jump(${i})">${p}</span>`;
-        });
-    }
-
-    function jump(index) {
-        currentPathArr = currentPathArr.slice(0, index + 1);
-        loadNav(currentPathArr);
-    }
-
-    // Initial load
-    loadNav();
-</script>
 
 </body>
 </html>
