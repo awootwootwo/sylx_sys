@@ -3,554 +3,567 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siluxnt | Pro Ledger</title>
-    <!-- Tailwind CSS via Play CDN (Standard for single-file prototypes) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Siluxnt | Financial OS</title>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            orange: '#FF4500',
-                            yellow: '#FFFACD',
-                            'yellow-dark': '#FDF5B3',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fafafa; }
-        .wizard-step { display: none; }
-        .wizard-step.active { display: block; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        input, select, textarea { 
-            @apply w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-[#FF4500]/10 focus:border-[#FF4500] transition-all text-slate-700 font-medium;
+        /* --- RESET & VARIABLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --brand-orange: #FF4500;
+            --brand-yellow: #FFFACD;
+            --brand-yellow-dark: #FDF5B3;
+            --bg-canvas: #FAFAFA;
+            --text-main: #1A1A1A;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+            --card-bg: #FFFFFF;
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
         }
-        label { @apply text-[11px] font-extrabold text-slate-500 uppercase tracking-[0.1em] mb-2 block ml-1; }
-        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 0, 0, 0.05); }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- LAYOUT --- */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--brand-orange);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 69, 0, 0.3);
+        }
+
+        .logo-text { font-weight: 900; font-size: 1.4rem; letter-spacing: -1px; font-style: italic; }
+
+        .nav-links { display: flex; gap: 8px; background: #F1F5F9; padding: 4px; border-radius: var(--radius-lg); }
+        .nav-btn {
+            border: none; background: transparent; padding: 8px 16px; border-radius: 12px;
+            font-size: 0.85rem; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.2s;
+        }
+        .nav-btn.active { background: white; color: var(--brand-orange); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        main { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
+
+        /* --- UI COMPONENTS --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .stat-box {
+            padding: 2rem; border-radius: var(--radius-xl); background: white; border: 1px solid var(--border-color);
+            border-bottom: 4px solid var(--brand-orange);
+        }
+        .stat-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 0.5rem; display: block; }
+        .stat-value { font-size: 1.8rem; font-weight: 900; }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .section-title { font-size: 2rem; font-weight: 900; letter-spacing: -0.5px; }
+        .section-title span { color: var(--brand-orange); }
+
+        /* --- FORMS --- */
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; margin-left: 4px; }
+        input, select, textarea {
+            width: 100%; padding: 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);
+            font-size: 1rem; font-weight: 500; outline: none; transition: 0.2s;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--brand-orange); box-shadow: 0 0 0 4px rgba(255, 69, 0, 0.08); }
+
+        .btn {
+            padding: 1rem 2rem; border-radius: var(--radius-lg); font-weight: 800; cursor: pointer;
+            transition: 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; justify-content: center;
+        }
+        .btn-primary { background: var(--brand-orange); color: white; box-shadow: 0 4px 12px rgba(255, 69, 0, 0.2); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(255, 69, 0, 0.3); }
+        .btn-secondary { background: #F1F5F9; color: var(--text-muted); }
+
+        /* --- TABLE --- */
+        .table-container { background: white; border-radius: var(--radius-xl); border: 1px solid var(--border-color); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #F8FAFC; padding: 1.2rem; font-size: 0.7rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; text-align: left; }
+        td { padding: 1.2rem; border-top: 1px solid #F1F5F9; font-size: 0.9rem; }
+        .badge { padding: 4px 12px; border-radius: 8px; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; }
+        .badge-paid { background: #DCFCE7; color: #166534; }
+        .badge-pending { background: #FEF9C3; color: #854D0E; }
+        .badge-unpaid { background: #FEE2E2; color: #991B1B; }
+
+        /* --- UTILS --- */
+        .hidden { display: none !important; }
+        .wizard-step { display: none; }
+        .wizard-step.active { display: block; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .client-card { 
+            background: white; border: 1px solid var(--border-color); padding: 1.5rem; 
+            border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .filter-bar { display: flex; gap: 12px; margin-bottom: 2rem; }
+        .search-input { flex: 1; }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+            z-index: 200; display: none; align-items: center; justify-content: center; padding: 2rem;
+        }
+        .modal { background: white; width: 100%; max-width: 500px; border-radius: var(--radius-xl); padding: 2.5rem; }
     </style>
 </head>
-<body class="text-slate-800">
+<body>
 
-    <!-- Navigation -->
-    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-3 cursor-pointer" onclick="showPage('home')">
-            <div class="w-10 h-10 rounded-xl bg-brand-orange flex items-center justify-center shadow-lg shadow-orange-200">
-                <i data-lucide="zap" class="w-6 h-6 text-white fill-white"></i>
-            </div>
-            <span class="font-black text-2xl tracking-tighter text-slate-900 italic">SILUXNT</span>
+    <nav>
+        <div class="nav-logo" onclick="showPage('home')">
+            <div class="logo-icon"><i data-lucide="zap"></i></div>
+            <div class="logo-text">SILUXNT</div>
         </div>
-        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl">
-            <button onclick="showPage('home')" class="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-brand-orange transition-all">Portal</button>
-            <button onclick="showPage('clients')" class="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-brand-orange transition-all">Clients</button>
-            <button onclick="showPage('invoice')" class="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-brand-orange transition-all">Billing</button>
-            <button onclick="showPage('payment')" class="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-brand-orange transition-all">Collections</button>
-            <button onclick="showPage('dashboard')" class="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-brand-orange transition-all">Ledger</button>
+        <div class="nav-links">
+            <button onclick="showPage('home')" class="nav-btn active" id="btn-home">Portal</button>
+            <button onclick="showPage('clients')" class="nav-btn" id="btn-clients">Clients</button>
+            <button onclick="showPage('billing')" class="nav-btn" id="btn-billing">Billing</button>
+            <button onclick="showPage('collections')" class="nav-btn" id="btn-collections">Collections</button>
+            <button onclick="showPage('ledger')" class="nav-btn" id="btn-ledger">Ledger</button>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto p-6 lg:p-12">
-        
-        <!-- PAGE: HOME -->
-        <section id="page-home" class="space-y-12">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-6">
-                <div>
-                    <h1 class="text-5xl font-extrabold tracking-tight mb-2">Financial <span class="text-brand-orange">Command</span></h1>
-                    <p class="text-slate-400 font-medium">Global liquidity overview.</p>
-                </div>
+    <main>
+        <!-- PAGE: PORTAL -->
+        <section id="page-home">
+            <div class="section-header">
+                <h1 class="section-title">Finance <span>Control</span></h1>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="glass-card p-8 rounded-[32px] border-b-4 border-orange-500 shadow-sm">
-                    <label>Total Receivables</label>
-                    <p id="dash-ar" class="text-3xl font-black text-slate-900">₱0.00</p>
+            <div class="grid-stats">
+                <div class="stat-box">
+                    <span class="stat-label">Accounts Receivable</span>
+                    <div id="stat-ar" class="stat-value">₱0.00</div>
                 </div>
-                <div class="glass-card p-8 rounded-[32px] border-b-4 border-blue-500 shadow-sm">
-                    <label>Gross Billing</label>
-                    <p id="dash-sales" class="text-3xl font-black text-slate-900">₱0.00</p>
+                <div class="stat-box">
+                    <span class="stat-label">Revenue To Date</span>
+                    <div id="stat-rev" class="stat-value">₱0.00</div>
                 </div>
-                <div class="glass-card p-8 rounded-[32px] border-b-4 border-brand-yellow-dark shadow-sm">
-                    <label>Tax Collected</label>
-                    <p id="dash-tax" class="text-3xl font-black text-slate-900">₱0.00</p>
+                <div class="stat-box">
+                    <span class="stat-label">Tax Provision</span>
+                    <div id="stat-tax" class="stat-value">₱0.00</div>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE: CLIENT MANAGEMENT -->
-        <section id="page-clients" class="hidden space-y-8">
-            <div class="flex justify-between items-center">
-                <h2 class="text-3xl font-black">Client <span class="text-brand-orange">Directory</span></h2>
-                <button onclick="toggleModal('client-modal')" class="bg-brand-orange text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-all">
-                    <i data-lucide="user-plus" class="w-5 h-5"></i> New Client
+        <!-- PAGE: CLIENTS -->
+        <section id="page-clients" class="hidden">
+            <div class="section-header">
+                <h1 class="section-title">Client <span>Network</span></h1>
+                <button class="btn btn-primary" onclick="openClientModal()">
+                    <i data-lucide="user-plus"></i> New Client
                 </button>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="client-grid">
-                <!-- Clients injected here -->
-            </div>
+            <div id="client-list" style="display: grid; gap: 1rem;"></div>
         </section>
 
-        <!-- PAGE: INVOICE WIZARD -->
-        <section id="page-invoice" class="hidden max-w-xl mx-auto py-8">
-            <div class="glass-card rounded-[32px] p-10 shadow-2xl relative">
-                
-                <!-- Step 1: Identity -->
-                <div id="inv-step-1" class="wizard-step active space-y-6">
-                    <div class="mb-8">
-                        <h2 class="text-2xl font-black mb-1">Billing Setup</h2>
-                        <p class="text-sm text-slate-400">Select client and date of service.</p>
-                    </div>
-                    <div>
+        <!-- PAGE: BILLING -->
+        <section id="page-billing" class="hidden" style="max-width: 600px; margin: 0 auto;">
+            <div class="card">
+                <!-- Step 1 -->
+                <div id="bill-step-1" class="wizard-step active">
+                    <h2 style="font-weight: 900; margin-bottom: 0.5rem;">Create Invoice</h2>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 2rem;">Assign this transaction to a client.</p>
+                    
+                    <div class="form-group">
                         <label>Select Client</label>
-                        <select id="inv-client" onchange="validateStep1()">
-                            <option value="">Choose Client...</option>
+                        <select id="bill-client-id" onchange="toggleManualClient()">
+                            <option value="">Select Existing...</option>
+                            <option value="NEW">+ Add Unverified Client...</option>
                         </select>
                     </div>
-                    <div>
-                        <label>Transaction Date</label>
-                        <input type="date" id="inv-date" onchange="validateStep1()">
+
+                    <div id="manual-client-box" class="form-group hidden">
+                        <label>New Client Name (Unverified)</label>
+                        <input type="text" id="bill-client-manual-name" placeholder="Enter company name">
                     </div>
-                    <button id="btn-next-1" disabled onclick="nextStep(2)" class="w-full py-4 bg-slate-100 text-slate-300 rounded-2xl font-bold transition-all">Continue</button>
+
+                    <div class="form-group">
+                        <label>Billing Date</label>
+                        <input type="date" id="bill-date">
+                    </div>
+
+                    <button class="btn btn-primary" style="width:100%" onclick="goToStep(2)">Next Step</button>
                 </div>
 
-                <!-- Step 2: Details & Particulars -->
-                <div id="inv-step-2" class="wizard-step space-y-6">
-                    <div class="mb-8">
-                        <h2 class="text-2xl font-black mb-1">Particulars</h2>
-                        <p class="text-sm text-slate-400">Specify items and amounts.</p>
+                <!-- Step 2 -->
+                <div id="bill-step-2" class="wizard-step">
+                    <h2 style="font-weight: 900; margin-bottom: 1.5rem;">Details</h2>
+                    <div class="form-group">
+                        <label>Particulars (Items/Services)</label>
+                        <textarea id="bill-items" rows="4" placeholder="Description of work..."></textarea>
                     </div>
-                    <div>
-                        <label>Item Description / Particulars</label>
-                        <textarea id="inv-particulars" rows="3" placeholder="Describe the service or items provided..."></textarea>
+                    <div class="form-group">
+                        <label>Total Amount (PHP)</label>
+                        <input type="number" id="bill-amount" placeholder="0.00" style="font-size: 1.5rem; font-weight: 900;">
                     </div>
-                    <div>
-                        <label>Gross Amount (PHP)</label>
-                        <input type="number" id="inv-amount" placeholder="0.00" class="text-xl font-black" oninput="calcPreview()">
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary" style="flex:1" onclick="goToStep(1)">Back</button>
+                        <button class="btn btn-primary" style="flex:2" onclick="postInvoice()">Post Ledger</button>
                     </div>
-                    <div class="p-6 bg-brand-yellow rounded-3xl border border-brand-yellow-dark">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-bold text-slate-500 uppercase">Auto-calculated Tax (1.12%)</span>
-                            <span id="verified-badge" class="hidden text-[9px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full">VERIFIED</span>
-                        </div>
-                        <p class="text-2xl font-black text-brand-orange">₱<span id="tax-preview">0.00</span></p>
-                    </div>
-                    <div class="flex gap-3">
-                        <button onclick="nextStep(1)" class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold text-slate-500">Back</button>
-                        <button onclick="nextStep(3)" class="flex-[2] py-4 bg-brand-orange text-white rounded-2xl font-bold">Review</button>
-                    </div>
-                </div>
-
-                <!-- Step 3: Review -->
-                <div id="inv-step-3" class="wizard-step space-y-6">
-                    <h2 class="text-2xl font-black">Verify Record</h2>
-                    <div class="space-y-3 bg-slate-50 p-6 rounded-3xl text-sm" id="review-content">
-                        <!-- Review content injected here -->
-                    </div>
-                    <button onclick="submitInvoice()" class="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black shadow-xl hover:scale-[1.02] transition-all">POST TO LEDGER</button>
-                    <button onclick="nextStep(2)" class="w-full text-slate-400 font-bold text-xs">Modify Details</button>
                 </div>
             </div>
         </section>
 
         <!-- PAGE: COLLECTIONS -->
-        <section id="page-payment" class="hidden max-w-xl mx-auto py-8">
-            <div class="glass-card rounded-[32px] p-10 shadow-2xl space-y-6">
-                <div class="mb-4">
-                    <h2 class="text-2xl font-black mb-1">Record Payment</h2>
-                    <p class="text-sm text-slate-400">Apply cash to an outstanding invoice.</p>
-                </div>
-                <div>
-                    <label>Select Unpaid Invoice</label>
-                    <select id="pay-inv-id" onchange="updatePayPreview()">
-                        <option value="">Select Invoice...</option>
+        <section id="page-collections" class="hidden" style="max-width: 600px; margin: 0 auto;">
+            <div class="card">
+                <h2 style="font-weight: 900; margin-bottom: 0.5rem;">Record Payment</h2>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 2rem;">Apply payments to open invoices.</p>
+                
+                <div class="form-group">
+                    <label>Select Invoice</label>
+                    <select id="pay-inv-id" onchange="updatePayInfo()">
+                        <option value="">Choose Invoice...</option>
                     </select>
                 </div>
-                <div id="pay-details" class="hidden p-6 bg-brand-yellow rounded-3xl border border-brand-yellow-dark space-y-4">
-                    <div class="flex justify-between">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Balance Due</span>
-                        <span id="pay-balance" class="text-lg font-black text-brand-orange">₱0.00</span>
+
+                <div id="pay-info-box" class="hidden" style="background: var(--brand-yellow); padding: 1.5rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span style="font-size: 0.7rem; font-weight: 800; color: #854D0E;">OUTSTANDING BALANCE</span>
+                        <span id="pay-due" style="font-weight: 900; color: var(--brand-orange);">₱0.00</span>
                     </div>
-                    <input type="number" id="pay-amount" class="bg-white border-none text-2xl font-black" placeholder="0.00">
+                    <label>Payment Amount</label>
+                    <input type="number" id="pay-amount" style="border:none;">
                 </div>
-                <button onclick="submitPayment()" class="w-full py-5 bg-brand-orange text-white rounded-2xl font-black shadow-xl">RECORD TRANSACTION</button>
+
+                <button class="btn btn-primary" style="width:100%" onclick="recordPayment()">Apply Funds</button>
             </div>
         </section>
 
         <!-- PAGE: LEDGER -->
-        <section id="page-dashboard" class="hidden space-y-8">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <h2 class="text-3xl font-black">Master <span class="text-brand-orange">Ledger</span></h2>
-                <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                    <div class="relative group">
-                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-brand-orange"></i>
-                        <input type="text" id="ledger-search" placeholder="Search ID, Client, Items..." class="pl-11 py-3 text-sm w-full md:w-72" oninput="renderLedger()">
-                    </div>
-                    <select id="ledger-status-filter" class="py-3 text-sm md:w-44" onchange="renderLedger()">
-                        <option value="all">All Statuses</option>
-                        <option value="paid">Paid</option>
-                        <option value="pending">Pending</option>
-                        <option value="unpaid">Unpaid</option>
-                    </select>
-                </div>
+        <section id="page-ledger" class="hidden">
+            <div class="section-header">
+                <h1 class="section-title">Master <span>Ledger</span></h1>
+            </div>
+            
+            <div class="filter-bar">
+                <input type="text" id="search-box" class="search-input" placeholder="Search anything (ID, Client, Item, Status)..." oninput="renderLedger()">
+                <select id="status-filter" style="width: 200px;" onchange="renderLedger()">
+                    <option value="all">All Statuses</option>
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                    <option value="unpaid">Unpaid</option>
+                </select>
             </div>
 
-            <div class="bg-white rounded-[32px] border border-slate-100 shadow-xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50 border-b border-slate-100">
-                            <tr>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">ID & Client</th>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Particulars</th>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</th>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Balance</th>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                <th class="px-8 py-5"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="ledger-body" class="divide-y divide-slate-50"></tbody>
-                    </table>
-                </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Transaction</th>
+                            <th>Particulars</th>
+                            <th>Gross</th>
+                            <th>Balance</th>
+                            <th>Payment Label</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledger-body"></tbody>
+                </table>
             </div>
         </section>
-
     </main>
 
-    <!-- Modal: New Client -->
-    <div id="client-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden items-center justify-center p-6">
-        <div class="bg-white w-full max-w-md rounded-[32px] p-8 shadow-2xl space-y-6">
-            <h3 class="text-2xl font-black">Add New <span class="text-brand-orange">Client</span></h3>
-            <div>
-                <label>Company / Individual Name</label>
-                <input type="text" id="new-client-name" placeholder="Full legal name">
+    <!-- MODAL: NEW CLIENT -->
+    <div id="client-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 style="font-weight: 900; margin-bottom: 1.5rem;">New <span>Client</span></h2>
+            <div class="form-group">
+                <label>Legal Name</label>
+                <input type="text" id="modal-client-name" placeholder="Full name or company">
             </div>
-            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
-                <input type="checkbox" id="new-client-verified" class="w-5 h-5 accent-brand-orange cursor-pointer">
-                <div>
-                    <label class="mb-0">Tax Verified</label>
-                    <p class="text-[10px] text-slate-400 font-bold">Applies 1.12% liability automatically</p>
-                </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="modal-client-verified" style="width: 20px; height: 20px;">
+                <label style="margin:0">Verified (Apply Tax Logic)</label>
             </div>
-            <div class="flex gap-3">
-                <button onclick="toggleModal('client-modal')" class="flex-1 py-4 font-bold text-slate-400">Cancel</button>
-                <button onclick="addClient()" class="flex-1 py-4 bg-brand-orange text-white rounded-2xl font-bold">Save Client</button>
+            <div style="display: flex; gap: 12px; margin-top: 2rem;">
+                <button class="btn btn-secondary" style="flex:1" onclick="closeClientModal()">Cancel</button>
+                <button class="btn btn-primary" style="flex:1" onclick="saveClient()">Create</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Component -->
-    <div id="toast" class="fixed bottom-10 right-10 flex items-center gap-3 bg-slate-900 text-white p-5 rounded-3xl shadow-2xl translate-y-40 transition-all duration-500 opacity-0 z-[100]">
-        <div class="w-10 h-10 rounded-2xl bg-brand-orange flex items-center justify-center text-white"><i data-lucide="check" class="w-5 h-5"></i></div>
-        <div><p id="toast-msg" class="font-black text-sm">Action Successful</p></div>
-    </div>
-
     <script>
-        // --- DATA STATE (PERSISTENT) ---
-        let clients = JSON.parse(localStorage.getItem('sil_clients_v5')) || [];
-        let invoices = JSON.parse(localStorage.getItem('sil_invoices_v5')) || [];
-        let payments = JSON.parse(localStorage.getItem('sil_payments_v5')) || [];
+        // --- DATA STORE ---
+        let clients = JSON.parse(localStorage.getItem('sil_c_v6')) || [];
+        let invoices = JSON.parse(localStorage.getItem('sil_i_v6')) || [];
+        let payments = JSON.parse(localStorage.getItem('sil_p_v6')) || [];
 
-        // --- NAVIGATION ---
-        function showPage(pageId) {
-            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(`page-${pageId}`).classList.remove('hidden');
-            
-            if(pageId === 'clients') renderClients();
-            if(pageId === 'invoice') resetInvoiceWizard();
-            if(pageId === 'payment') refreshPaymentDropdown();
-            if(pageId === 'dashboard') renderLedger();
-            if(pageId === 'home') updateHomeStats();
-
-            lucide.createIcons();
-            window.scrollTo(0,0);
+        function save() {
+            localStorage.setItem('sil_c_v6', JSON.stringify(clients));
+            localStorage.setItem('sil_i_v6', JSON.stringify(invoices));
+            localStorage.setItem('sil_p_v6', JSON.stringify(payments));
+            updateHomeStats();
         }
 
-        // --- CLIENT MANAGEMENT ---
-        function addClient() {
-            const name = document.getElementById('new-client-name').value;
-            const verified = document.getElementById('new-client-verified').checked;
-            if(!name) return;
+        // --- NAVIGATION ---
+        function showPage(id) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`page-${id}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${id}`).classList.add('active');
 
-            clients.push({ id: 'CL-' + Date.now(), name, verified });
-            saveData();
-            toggleModal('client-modal');
+            if(id === 'clients') renderClients();
+            if(id === 'billing') resetBilling();
+            if(id === 'collections') setupCollections();
+            if(id === 'ledger') renderLedger();
+            if(id === 'home') updateHomeStats();
+            
+            lucide.createIcons();
+        }
+
+        // --- CLIENT LOGIC ---
+        function openClientModal() { document.getElementById('client-modal').style.display = 'flex'; }
+        function closeClientModal() { document.getElementById('client-modal').style.display = 'none'; }
+
+        function saveClient() {
+            const name = document.getElementById('modal-client-name').value;
+            if(!name) return;
+            clients.push({ id: 'CL-' + Date.now(), name, verified: document.getElementById('modal-client-verified').checked });
+            save();
+            closeClientModal();
             renderClients();
-            showToast("Client added to database");
-            document.getElementById('new-client-name').value = '';
-            document.getElementById('new-client-verified').checked = false;
         }
 
         function renderClients() {
-            const grid = document.getElementById('client-grid');
-            grid.innerHTML = '';
-            if(clients.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 italic">No clients registered. Click "New Client" to begin.</div>`;
-                return;
-            }
+            const list = document.getElementById('client-list');
+            list.innerHTML = '';
             clients.forEach(c => {
                 const div = document.createElement('div');
-                div.className = "glass-card p-6 rounded-3xl flex justify-between items-center";
+                div.className = 'client-card';
                 div.innerHTML = `
                     <div>
-                        <p class="font-bold text-slate-900">${c.name}</p>
-                        ${c.verified ? '<span class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Verified</span>' : '<span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Standard</span>'}
+                        <div style="font-weight: 800;">${c.name}</div>
+                        <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 800;">ID: ${c.id}</div>
                     </div>
-                    <button onclick="deleteClient('${c.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        ${c.verified ? '<span class="badge badge-paid">Verified</span>' : '<span class="badge badge-unpaid">Unverified</span>'}
+                        <button onclick="toggleVerify('${c.id}')" style="background:none; border:none; cursor:pointer; color: var(--text-muted);"><i data-lucide="refresh-cw" style="width:14px"></i></button>
+                    </div>
                 `;
-                grid.appendChild(div);
+                list.appendChild(div);
             });
             lucide.createIcons();
         }
 
-        function deleteClient(id) {
-            if(confirm("Delete this client? Associated invoices will remain but client data will be gone.")) {
-                clients = clients.filter(c => c.id !== id);
-                saveData();
-                renderClients();
-            }
+        function toggleVerify(id) {
+            const c = clients.find(x => x.id === id);
+            if(c) { c.verified = !c.verified; save(); renderClients(); }
         }
 
-        // --- INVOICE WIZARD ---
-        function resetInvoiceWizard() {
-            nextStep(1);
-            const sel = document.getElementById('inv-client');
-            sel.innerHTML = '<option value="">Choose Client...</option>' + 
+        // --- BILLING LOGIC ---
+        function resetBilling() {
+            goToStep(1);
+            const sel = document.getElementById('bill-client-id');
+            sel.innerHTML = '<option value="">Select Existing...</option><option value="NEW">+ Add Unverified Client...</option>' + 
                 clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            document.getElementById('inv-date').valueAsDate = new Date();
-            document.getElementById('inv-amount').value = '';
-            document.getElementById('inv-particulars').value = '';
-            validateStep1();
+            document.getElementById('bill-date').valueAsDate = new Date();
+            document.getElementById('bill-amount').value = '';
+            document.getElementById('bill-items').value = '';
         }
 
-        function nextStep(step) {
+        function toggleManualClient() {
+            const val = document.getElementById('bill-client-id').value;
+            document.getElementById('manual-client-box').classList.toggle('hidden', val !== 'NEW');
+        }
+
+        function goToStep(n) {
             document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
-            document.getElementById(`inv-step-${step}`).classList.add('active');
-            if(step === 3) populateReview();
+            document.getElementById(`bill-step-${n}`).classList.add('active');
         }
 
-        function validateStep1() {
-            const client = document.getElementById('inv-client').value;
-            const date = document.getElementById('inv-date').value;
-            const btn = document.getElementById('btn-next-1');
-            btn.disabled = !(client && date);
-            btn.className = btn.disabled ? "w-full py-4 bg-slate-100 text-slate-300 rounded-2xl font-bold transition-all" : "w-full py-4 bg-brand-orange text-white rounded-2xl font-bold shadow-lg";
-        }
+        function postInvoice() {
+            let clientName = "";
+            let clientId = document.getElementById('bill-client-id').value;
+            
+            if(clientId === 'NEW') {
+                const name = document.getElementById('bill-client-manual-name').value;
+                if(!name) return alert("Enter client name");
+                const newC = { id: 'CL-' + Date.now(), name, verified: false };
+                clients.push(newC);
+                clientId = newC.id;
+                clientName = name;
+            } else {
+                const c = clients.find(x => x.id === clientId);
+                if(!c) return alert("Select client");
+                clientName = c.name;
+            }
 
-        function calcPreview() {
-            const amt = parseFloat(document.getElementById('inv-amount').value) || 0;
-            const cId = document.getElementById('inv-client').value;
-            const client = clients.find(c => c.id === cId);
-            const tax = (client?.verified) ? amt * 0.0112 : 0;
-            document.getElementById('tax-preview').innerText = tax.toLocaleString(undefined, {minimumFractionDigits: 2});
-            document.getElementById('verified-badge').classList.toggle('hidden', !client?.verified);
-        }
-
-        function populateReview() {
-            const client = clients.find(c => c.id === document.getElementById('inv-client').value);
-            const amt = parseFloat(document.getElementById('inv-amount').value) || 0;
-            const particulars = document.getElementById('inv-particulars').value || "No description provided";
-            const tax = (client?.verified) ? amt * 0.0112 : 0;
-
-            document.getElementById('review-content').innerHTML = `
-                <div class="flex justify-between border-b pb-2"><span class="text-slate-400">Client</span><span class="font-bold">${client.name}</span></div>
-                <div class="flex justify-between border-b pb-2"><span class="text-slate-400">Items</span><span class="font-bold text-right pl-8">${particulars}</span></div>
-                <div class="flex justify-between border-b pb-2"><span class="text-slate-400">Tax Breakdown</span><span class="font-bold">${formatCurrency(tax)}</span></div>
-                <div class="flex justify-between pt-2 text-lg"><span class="text-slate-400">Total Bill</span><span class="font-black text-brand-orange">${formatCurrency(amt)}</span></div>
-            `;
-        }
-
-        function submitInvoice() {
-            const cId = document.getElementById('inv-client').value;
-            const client = clients.find(c => c.id === cId);
-            const amt = parseFloat(document.getElementById('inv-amount').value) || 0;
-
+            const amt = parseFloat(document.getElementById('bill-amount').value) || 0;
+            const c = clients.find(x => x.id === clientId);
+            
             invoices.push({
-                id: 'INV-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-                clientId: cId,
-                clientName: client.name,
-                particulars: document.getElementById('inv-particulars').value,
-                date: document.getElementById('inv-date').value,
+                id: 'INV-' + Math.random().toString(36).substr(2, 5).toUpperCase(),
+                clientId,
+                clientName,
+                date: document.getElementById('bill-date').value,
+                items: document.getElementById('bill-items').value,
                 amount: amt,
-                tax: (client.verified) ? amt * 0.0112 : 0,
+                tax: c.verified ? amt * 0.0112 : 0,
                 ts: Date.now()
             });
 
-            saveData();
-            showToast("Transaction Posted Successfully");
-            showPage('dashboard');
+            save();
+            showPage('ledger');
         }
 
         // --- COLLECTIONS ---
-        function refreshPaymentDropdown() {
+        function setupCollections() {
             const sel = document.getElementById('pay-inv-id');
-            const unpaid = invoices.filter(i => getBalance(i.id) > 0);
-            sel.innerHTML = '<option value="">Select Invoice...</option>' + 
-                unpaid.map(i => `<option value="${i.id}">${i.id} — ${i.clientName}</option>`).join('');
-            document.getElementById('pay-details').classList.add('hidden');
+            const open = invoices.filter(i => getBalance(i.id) > 0);
+            sel.innerHTML = '<option value="">Choose Invoice...</option>' + 
+                open.map(i => `<option value="${i.id}">${i.id} - ${i.clientName}</option>`).join('');
+            document.getElementById('pay-info-box').classList.add('hidden');
         }
 
-        function updatePayPreview() {
+        function updatePayInfo() {
             const id = document.getElementById('pay-inv-id').value;
             if(!id) return;
             const bal = getBalance(id);
-            document.getElementById('pay-details').classList.remove('hidden');
-            document.getElementById('pay-balance').innerText = formatCurrency(bal);
+            document.getElementById('pay-info-box').classList.remove('hidden');
+            document.getElementById('pay-due').innerText = formatCurrency(bal);
             document.getElementById('pay-amount').value = bal;
         }
 
-        function submitPayment() {
+        function recordPayment() {
             const invId = document.getElementById('pay-inv-id').value;
             const amt = parseFloat(document.getElementById('pay-amount').value) || 0;
             if(!invId || amt <= 0) return;
 
             payments.push({
-                id: 'PAY-' + Date.now(),
-                invoiceId: invId,
+                invId,
                 amount: amt,
                 date: new Date().toISOString().split('T')[0]
             });
 
-            saveData();
-            showToast("Collection recorded");
-            showPage('dashboard');
+            save();
+            showPage('ledger');
         }
 
-        // --- LEDGER & SEARCH ENGINE ---
-        function getBalance(invId) {
-            const inv = invoices.find(i => i.id === invId);
-            const paid = payments.filter(p => p.invoiceId === invId).reduce((s, p) => s + p.amount, 0);
+        // --- LEDGER LOGIC ---
+        function getBalance(id) {
+            const inv = invoices.find(x => x.id === id);
+            const paid = payments.filter(p => p.invId === id).reduce((sum, p) => sum + p.amount, 0);
             return Math.max(0, inv.amount - paid);
         }
 
-        function getStatus(invId) {
-            const inv = invoices.find(i => i.id === invId);
-            const bal = getBalance(invId);
-            if(bal === 0) return 'paid';
+        function getStatus(id) {
+            const bal = getBalance(id);
+            const inv = invoices.find(x => x.id === id);
+            if(bal <= 0) return 'paid';
             if(bal < inv.amount) return 'pending';
             return 'unpaid';
         }
 
+        function getPaymentLabel(id) {
+            const bal = getBalance(id);
+            const inv = invoices.find(x => x.id === id);
+            if(bal === 0) return "FULLY PAID";
+            if(bal < inv.amount) return "DOWN PAYMENT";
+            return "NO PAYMENT";
+        }
+
         function renderLedger() {
-            const tbody = document.getElementById('ledger-body');
-            const keyword = document.getElementById('ledger-search').value.toLowerCase();
-            const statusFilter = document.getElementById('ledger-status-filter').value;
-            
-            tbody.innerHTML = '';
-            
-            const filtered = invoices.filter(inv => {
-                const bal = getBalance(inv.id);
-                const status = getStatus(inv.id);
+            const query = document.getElementById('search-box').value.toLowerCase();
+            const filter = document.getElementById('status-filter').value;
+            const body = document.getElementById('ledger-body');
+            body.innerHTML = '';
+
+            const data = invoices.filter(i => {
+                const bal = getBalance(i.id);
+                const status = getStatus(i.id);
+                const label = getPaymentLabel(i.id);
+                const searchStr = `${i.id} ${i.clientName} ${i.items} ${status} ${label}`.toLowerCase();
                 
-                // Column Data for Global Search
-                const searchString = [
-                    inv.id,
-                    inv.clientName,
-                    inv.particulars,
-                    inv.date,
-                    inv.amount.toString(),
-                    bal.toString(),
-                    status
-                ].join(' ').toLowerCase();
-
-                const matchesKeyword = searchString.includes(keyword);
-                const matchesStatus = statusFilter === 'all' || status === statusFilter;
-
-                return matchesKeyword && matchesStatus;
+                return searchStr.includes(query) && (filter === 'all' || status === filter);
             }).sort((a,b) => b.ts - a.ts);
 
-            filtered.forEach(inv => {
-                const bal = getBalance(inv.id);
-                const status = getStatus(inv.id);
+            data.forEach(i => {
+                const bal = getBalance(i.id);
+                const status = getStatus(i.id);
+                const label = getPaymentLabel(i.id);
                 
-                const statusMap = {
-                    paid: { label: 'Paid', class: 'bg-emerald-100 text-emerald-600' },
-                    pending: { label: 'Pending', class: 'bg-amber-100 text-amber-600' },
-                    unpaid: { label: 'Unpaid', class: 'bg-red-100 text-red-600' }
-                };
-
                 const tr = document.createElement('tr');
-                tr.className = "group hover:bg-slate-50 transition-colors";
                 tr.innerHTML = `
-                    <td class="px-8 py-5">
-                        <div class="font-bold text-slate-900">${inv.clientName}</div>
-                        <div class="text-[9px] font-mono text-slate-400 uppercase tracking-tighter">${inv.id}</div>
+                    <td>
+                        <div style="font-weight: 800;">${i.clientName}</div>
+                        <div style="font-size: 0.65rem; color: var(--text-muted);">${i.id} | ${i.date}</div>
                     </td>
-                    <td class="px-8 py-5 text-xs font-medium text-slate-500 max-w-[200px] truncate">${inv.particulars || '-'}</td>
-                    <td class="px-8 py-5 text-sm font-bold">${formatCurrency(inv.amount)}</td>
-                    <td class="px-8 py-5 text-sm font-black text-slate-900">${formatCurrency(bal)}</td>
-                    <td class="px-8 py-5">
-                        <span class="px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${statusMap[status].class}">
-                            ${statusMap[status].label}
-                        </span>
+                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 200px;">${i.items || '-'}</td>
+                    <td style="font-weight: 700;">${formatCurrency(i.amount)}</td>
+                    <td style="font-weight: 900; color: var(--brand-orange);">${formatCurrency(bal)}</td>
+                    <td>
+                        <span style="font-size: 0.65rem; font-weight: 900; color: ${label === 'NO PAYMENT' ? '#94a3b8' : 'var(--brand-orange)'}">${label}</span>
                     </td>
-                    <td class="px-8 py-5 text-right">
-                        <button onclick="deleteInvoice('${inv.id}')" class="text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </td>
+                    <td><span class="badge badge-${status}">${status}</span></td>
                 `;
-                tbody.appendChild(tr);
+                body.appendChild(tr);
             });
-
-            if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-slate-400 italic text-sm">No records found matching your filters.</td></tr>`;
-            }
-            lucide.createIcons();
         }
 
-        // --- CORE UI HELPERS ---
+        // --- STATS ---
         function updateHomeStats() {
-            let ar = 0, sales = 0, tax = 0;
+            let ar = 0, rev = 0, tax = 0;
             invoices.forEach(i => {
-                ar += getBalance(i.id);
-                sales += i.amount;
+                const bal = getBalance(i.id);
+                ar += bal;
+                rev += (i.amount - bal);
                 tax += i.tax;
             });
-            document.getElementById('dash-ar').innerText = formatCurrency(ar);
-            document.getElementById('dash-sales').innerText = formatCurrency(sales);
-            document.getElementById('dash-tax').innerText = formatCurrency(tax);
+            document.getElementById('stat-ar').innerText = formatCurrency(ar);
+            document.getElementById('stat-rev').innerText = formatCurrency(rev);
+            document.getElementById('stat-tax').innerText = formatCurrency(tax);
         }
 
-        function deleteInvoice(id) {
-            if(confirm("Delete this invoice record?")) {
-                invoices = invoices.filter(i => i.id !== id);
-                payments = payments.filter(p => p.invoiceId !== id);
-                saveData();
-                renderLedger();
-            }
-        }
-
-        function formatCurrency(v) {
-            return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(v);
-        }
-
-        function toggleModal(id) {
-            const m = document.getElementById(id);
-            m.classList.toggle('hidden');
-            m.classList.toggle('flex');
-        }
-
-        function saveData() {
-            localStorage.setItem('sil_clients_v5', JSON.stringify(clients));
-            localStorage.setItem('sil_invoices_v5', JSON.stringify(invoices));
-            localStorage.setItem('sil_payments_v5', JSON.stringify(payments));
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            t.classList.remove('translate-y-40', 'opacity-0');
-            setTimeout(() => t.classList.add('translate-y-40', 'opacity-0'), 3000);
+        function formatCurrency(n) {
+            return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(n);
         }
 
         window.onload = () => {
-            lucide.createIcons();
-            updateHomeStats();
-        };
+            showPage('home');
+        }
     </script>
 </body>
 </html>
