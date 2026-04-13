@@ -263,8 +263,16 @@
                         <span style="font-size: 0.7rem; font-weight: 800; color: #854D0E;">OUTSTANDING BALANCE</span>
                         <span id="pay-due" style="font-weight: 900; color: var(--brand-orange);">₱0.00</span>
                     </div>
-                    <label>Payment Amount</label>
-                    <input type="number" id="pay-amount" style="border:none;">
+                    
+                    <div class="form-group">
+                        <label>Payment Date</label>
+                        <input type="date" id="pay-date" style="border: 1px solid var(--border-color); background: white;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payment Amount</label>
+                        <input type="number" id="pay-amount" style="border: 1px solid var(--border-color); background: white;">
+                    </div>
                 </div>
 
                 <button class="btn btn-primary" style="width:100%" onclick="recordPayment()">Apply Funds</button>
@@ -456,6 +464,7 @@
             sel.innerHTML = '<option value="">Choose Invoice...</option>' + 
                 open.map(i => `<option value="${i.id}">${i.id} - ${i.clientName}</option>`).join('');
             document.getElementById('pay-info-box').classList.add('hidden');
+            document.getElementById('pay-date').valueAsDate = new Date();
         }
 
         function updatePayInfo() {
@@ -465,17 +474,20 @@
             document.getElementById('pay-info-box').classList.remove('hidden');
             document.getElementById('pay-due').innerText = formatCurrency(bal);
             document.getElementById('pay-amount').value = bal;
+            document.getElementById('pay-date').valueAsDate = new Date();
         }
 
         function recordPayment() {
             const invId = document.getElementById('pay-inv-id').value;
             const amt = parseFloat(document.getElementById('pay-amount').value) || 0;
-            if(!invId || amt <= 0) return;
+            const date = document.getElementById('pay-date').value;
+            
+            if(!invId || amt <= 0 || !date) return;
 
             payments.push({
                 invId,
                 amount: amt,
-                date: new Date().toISOString().split('T')[0]
+                date: date
             });
 
             save();
