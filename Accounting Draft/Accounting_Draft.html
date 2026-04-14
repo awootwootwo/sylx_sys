@@ -68,10 +68,10 @@
 
         .logo-text { font-weight: 900; font-size: 1.4rem; letter-spacing: -1px; font-style: italic; }
 
-        .nav-links { display: flex; gap: 8px; background: #F1F5F9; padding: 4px; border-radius: var(--radius-lg); }
+        .nav-links { display: flex; gap: 8px; background: #F1F5F9; padding: 4px; border-radius: var(--radius-lg); overflow-x: auto; }
         .nav-btn {
             border: none; background: transparent; padding: 8px 16px; border-radius: 12px;
-            font-size: 0.85rem; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.2s;
+            font-size: 0.85rem; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.2s; white-space: nowrap;
         }
         .nav-btn.active { background: white; color: var(--brand-orange); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
@@ -103,13 +103,13 @@
         .form-group { margin-bottom: 1.5rem; }
         label { display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; margin-left: 4px; }
         input, select, textarea {
-            width: 100%; padding: 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);
+            width: 100%; padding: 0.8rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);
             font-size: 1rem; font-weight: 500; outline: none; transition: 0.2s;
         }
         input:focus, select:focus, textarea:focus { border-color: var(--brand-orange); box-shadow: 0 0 0 4px rgba(255, 69, 0, 0.08); }
 
         .btn {
-            padding: 1rem 2rem; border-radius: var(--radius-lg); font-weight: 800; cursor: pointer;
+            padding: 0.8rem 1.5rem; border-radius: var(--radius-lg); font-weight: 800; cursor: pointer;
             transition: 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; justify-content: center;
         }
         .btn-primary { background: var(--brand-orange); color: white; box-shadow: 0 4px 12px rgba(255, 69, 0, 0.2); }
@@ -121,10 +121,15 @@
         table { width: 100%; border-collapse: collapse; }
         th { background: #F8FAFC; padding: 1.2rem; font-size: 0.7rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; text-align: left; }
         td { padding: 1.2rem; border-top: 1px solid #F1F5F9; font-size: 0.9rem; }
+        
         .badge { padding: 4px 12px; border-radius: 8px; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; }
         .badge-paid { background: #DCFCE7; color: #166534; }
         .badge-pending { background: #FEF9C3; color: #854D0E; }
         .badge-unpaid { background: #FEE2E2; color: #991B1B; }
+        .badge-type { background: #E2E8F0; color: #475569; }
+
+        /* --- BILLING ITEMIZER --- */
+        .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr 40px; gap: 10px; margin-bottom: 10px; align-items: end; }
 
         /* --- UTILS --- */
         .hidden { display: none !important; }
@@ -132,8 +137,8 @@
         .wizard-step.active { display: block; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .client-card { 
-            background: white; border: 1px solid var(--border-color); padding: 1.5rem; 
+        .list-card { 
+            background: white; border: 1px solid var(--border-color); padding: 1.2rem; 
             border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center;
         }
 
@@ -158,6 +163,7 @@
         <div class="nav-links">
             <button onclick="showPage('home')" class="nav-btn active" id="btn-home">Portal</button>
             <button onclick="showPage('clients')" class="nav-btn" id="btn-clients">Clients</button>
+            <button onclick="showPage('inventory')" class="nav-btn" id="btn-inventory">Inventory</button>
             <button onclick="showPage('billing')" class="nav-btn" id="btn-billing">Billing</button>
             <button onclick="showPage('collections')" class="nav-btn" id="btn-collections">Collections</button>
             <button onclick="showPage('ledger')" class="nav-btn" id="btn-ledger">Ledger</button>
@@ -197,8 +203,19 @@
             <div id="client-list" style="display: grid; gap: 1rem;"></div>
         </section>
 
+        <!-- PAGE: INVENTORY -->
+        <section id="page-inventory" class="hidden">
+            <div class="section-header">
+                <h1 class="section-title">Item <span>Catalog</span></h1>
+                <button class="btn btn-primary" onclick="openInventoryModal()">
+                    <i data-lucide="package-plus"></i> Add Item
+                </button>
+            </div>
+            <div id="inventory-list" style="display: grid; gap: 1rem;"></div>
+        </section>
+
         <!-- PAGE: BILLING -->
-        <section id="page-billing" class="hidden" style="max-width: 600px; margin: 0 auto;">
+        <section id="page-billing" class="hidden" style="max-width: 800px; margin: 0 auto;">
             <div class="card">
                 <!-- Step 1 -->
                 <div id="bill-step-1" class="wizard-step active">
@@ -223,20 +240,28 @@
                         <input type="date" id="bill-date">
                     </div>
 
-                    <button class="btn btn-primary" style="width:100%" onclick="goToStep(2)">Next Step</button>
+                    <button class="btn btn-primary" style="width:100%" onclick="goToStep(2)">Next: Itemize</button>
                 </div>
 
                 <!-- Step 2 -->
                 <div id="bill-step-2" class="wizard-step">
-                    <h2 style="font-weight: 900; margin-bottom: 1.5rem;">Details</h2>
-                    <div class="form-group">
-                        <label>Particulars (Items/Services)</label>
-                        <textarea id="bill-items" rows="4" placeholder="Description of work..."></textarea>
+                    <h2 style="font-weight: 900; margin-bottom: 1.5rem;">Itemized Particulars</h2>
+                    
+                    <div id="billing-items-container">
+                        <!-- Item rows injected here -->
                     </div>
-                    <div class="form-group">
-                        <label>Total Amount (PHP)</label>
-                        <input type="number" id="bill-amount" placeholder="0.00" style="font-size: 1.5rem; font-weight: 900;">
+
+                    <button class="btn btn-secondary" onclick="addBillingRow()" style="width: 100%; border: 2px dashed #CBD5E1; background: transparent; margin-bottom: 2rem;">
+                        <i data-lucide="plus"></i> Add Another Item
+                    </button>
+
+                    <div style="background: #F8FAFC; padding: 1.5rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; font-weight: 900; font-size: 1.2rem;">
+                            <span>Total Gross Amount</span>
+                            <span id="bill-total-display">₱0.00</span>
+                        </div>
                     </div>
+
                     <div style="display: flex; gap: 12px;">
                         <button class="btn btn-secondary" style="flex:1" onclick="goToStep(1)">Back</button>
                         <button class="btn btn-primary" style="flex:2" onclick="postInvoice()">Post Ledger</button>
@@ -303,7 +328,7 @@
                             <th>Particulars</th>
                             <th>Gross</th>
                             <th>Balance</th>
-                            <th>Payment Label</th>
+                            <th>Label</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -332,16 +357,49 @@
         </div>
     </div>
 
+    <!-- MODAL: INVENTORY -->
+    <div id="inventory-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 style="font-weight: 900; margin-bottom: 1.5rem;">Add <span>Asset</span></h2>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="inv-type">
+                    <option value="Service">Service</option>
+                    <option value="Software">Product: Software</option>
+                    <option value="Hardware">Product: Hardware</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text" id="inv-name" placeholder="e.g. Web Maintenance">
+            </div>
+            <div class="form-group">
+                <label>Default Price (PHP)</label>
+                <input type="number" id="inv-price" placeholder="0.00">
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 2rem;">
+                <button class="btn btn-secondary" style="flex:1" onclick="closeInventoryModal()">Cancel</button>
+                <button class="btn btn-primary" style="flex:1" onclick="saveInventoryItem()">Add to Database</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- DATA STORE ---
-        let clients = JSON.parse(localStorage.getItem('sil_c_v6')) || [];
-        let invoices = JSON.parse(localStorage.getItem('sil_i_v6')) || [];
-        let payments = JSON.parse(localStorage.getItem('sil_p_v6')) || [];
+        let clients = JSON.parse(localStorage.getItem('sil_c_v7')) || [];
+        let invoices = JSON.parse(localStorage.getItem('sil_i_v7')) || [];
+        let payments = JSON.parse(localStorage.getItem('sil_p_v7')) || [];
+        let inventory = JSON.parse(localStorage.getItem('sil_inv_v7')) || [
+            { id: 'I-1', name: 'Standard Service Fee', type: 'Service', price: 1500 },
+            { id: 'I-2', name: 'Software License', type: 'Software', price: 5000 },
+            { id: 'I-3', name: 'Hardware Setup', type: 'Hardware', price: 2500 }
+        ];
 
         function save() {
-            localStorage.setItem('sil_c_v6', JSON.stringify(clients));
-            localStorage.setItem('sil_i_v6', JSON.stringify(invoices));
-            localStorage.setItem('sil_p_v6', JSON.stringify(payments));
+            localStorage.setItem('sil_c_v7', JSON.stringify(clients));
+            localStorage.setItem('sil_i_v7', JSON.stringify(invoices));
+            localStorage.setItem('sil_p_v7', JSON.stringify(payments));
+            localStorage.setItem('sil_inv_v7', JSON.stringify(inventory));
             updateHomeStats();
         }
 
@@ -354,6 +412,7 @@
             document.getElementById(`btn-${id}`).classList.add('active');
 
             if(id === 'clients') renderClients();
+            if(id === 'inventory') renderInventory();
             if(id === 'billing') resetBilling();
             if(id === 'collections') setupCollections();
             if(id === 'ledger') renderLedger();
@@ -365,14 +424,11 @@
         // --- CLIENT LOGIC ---
         function openClientModal() { document.getElementById('client-modal').style.display = 'flex'; }
         function closeClientModal() { document.getElementById('client-modal').style.display = 'none'; }
-
         function saveClient() {
             const name = document.getElementById('modal-client-name').value;
             if(!name) return;
             clients.push({ id: 'CL-' + Date.now(), name, verified: document.getElementById('modal-client-verified').checked });
-            save();
-            closeClientModal();
-            renderClients();
+            save(); closeClientModal(); renderClients();
         }
 
         function renderClients() {
@@ -380,7 +436,7 @@
             list.innerHTML = '';
             clients.forEach(c => {
                 const div = document.createElement('div');
-                div.className = 'client-card';
+                div.className = 'list-card';
                 div.innerHTML = `
                     <div>
                         <div style="font-weight: 800;">${c.name}</div>
@@ -401,25 +457,114 @@
             if(c) { c.verified = !c.verified; save(); renderClients(); }
         }
 
-        // --- BILLING LOGIC ---
+        // --- INVENTORY LOGIC ---
+        function openInventoryModal() { document.getElementById('inventory-modal').style.display = 'flex'; }
+        function closeInventoryModal() { document.getElementById('inventory-modal').style.display = 'none'; }
+        function saveInventoryItem() {
+            const name = document.getElementById('inv-name').value;
+            const type = document.getElementById('inv-type').value;
+            const price = parseFloat(document.getElementById('inv-price').value) || 0;
+            if(!name) return;
+            inventory.push({ id: 'ITM-' + Date.now(), name, type, price });
+            save(); closeInventoryModal(); renderInventory();
+        }
+
+        function renderInventory() {
+            const list = document.getElementById('inventory-list');
+            list.innerHTML = '';
+            inventory.forEach(i => {
+                const div = document.createElement('div');
+                div.className = 'list-card';
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight: 800;">${i.name}</div>
+                        <span class="badge badge-type">${i.type}</span>
+                    </div>
+                    <div style="font-weight: 900;">${formatCurrency(i.price)}</div>
+                `;
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        // --- BILLING LOGIC (DYNAMIC ITEMIZER) ---
+        let billingRows = [];
+
         function resetBilling() {
             goToStep(1);
+            billingRows = [];
             const sel = document.getElementById('bill-client-id');
             sel.innerHTML = '<option value="">Select Existing...</option><option value="NEW">+ Add Unverified Client...</option>' + 
                 clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
             document.getElementById('bill-date').valueAsDate = new Date();
-            document.getElementById('bill-amount').value = '';
-            document.getElementById('bill-items').value = '';
+            document.getElementById('billing-items-container').innerHTML = '';
+            addBillingRow();
         }
 
-        function toggleManualClient() {
-            const val = document.getElementById('bill-client-id').value;
-            document.getElementById('manual-client-box').classList.toggle('hidden', val !== 'NEW');
+        function addBillingRow() {
+            const id = Date.now();
+            billingRows.push(id);
+            const container = document.getElementById('billing-items-container');
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.id = `row-${id}`;
+            div.innerHTML = `
+                <div>
+                    <label>Item / Service</label>
+                    <select onchange="updateRowPrice(${id}, this.value)" class="row-item-select">
+                        <option value="">Select Item...</option>
+                        <option value="MANUAL">+ Custom Entry...</option>
+                        ${inventory.map(itm => `<option value="${itm.id}">${itm.name} [${itm.type}]</option>`).join('')}
+                    </select>
+                    <input type="text" placeholder="Manual Description" class="row-manual-name hidden" style="margin-top:5px">
+                </div>
+                <div>
+                    <label>Qty</label>
+                    <input type="number" value="1" min="1" oninput="calculateBillTotal()" class="row-qty">
+                </div>
+                <div>
+                    <label>Rate</label>
+                    <input type="number" placeholder="0.00" oninput="calculateBillTotal()" class="row-rate">
+                </div>
+                <button class="btn" style="color: #94a3b8; padding: 0;" onclick="removeBillingRow(${id})"><i data-lucide="trash-2"></i></button>
+            `;
+            container.appendChild(div);
+            lucide.createIcons();
         }
 
-        function goToStep(n) {
-            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
-            document.getElementById(`bill-step-${n}`).classList.add('active');
+        function removeBillingRow(id) {
+            if(billingRows.length === 1) return;
+            billingRows = billingRows.filter(x => x !== id);
+            document.getElementById(`row-${id}`).remove();
+            calculateBillTotal();
+        }
+
+        function updateRowPrice(rowId, itemId) {
+            const row = document.getElementById(`row-${rowId}`);
+            const manualInput = row.querySelector('.row-manual-name');
+            const rateInput = row.querySelector('.row-rate');
+            
+            if(itemId === 'MANUAL') {
+                manualInput.classList.remove('hidden');
+                rateInput.value = '';
+            } else {
+                manualInput.classList.add('hidden');
+                const item = inventory.find(i => i.id === itemId);
+                if(item) rateInput.value = item.price;
+            }
+            calculateBillTotal();
+        }
+
+        function calculateBillTotal() {
+            let total = 0;
+            billingRows.forEach(id => {
+                const row = document.getElementById(`row-${id}`);
+                const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
+                const rate = parseFloat(row.querySelector('.row-rate').value) || 0;
+                total += (qty * rate);
+            });
+            document.getElementById('bill-total-display').innerText = formatCurrency(total);
+            return total;
         }
 
         function postInvoice() {
@@ -439,17 +584,34 @@
                 clientName = c.name;
             }
 
-            const amt = parseFloat(document.getElementById('bill-amount').value) || 0;
+            const items = [];
+            billingRows.forEach(id => {
+                const row = document.getElementById(`row-${id}`);
+                const sel = row.querySelector('.row-item-select');
+                const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
+                const rate = parseFloat(row.querySelector('.row-rate').value) || 0;
+                
+                let name = "";
+                if(sel.value === 'MANUAL') {
+                    name = row.querySelector('.row-manual-name').value || "Custom Item";
+                } else {
+                    const invItem = inventory.find(i => i.id === sel.value);
+                    name = invItem ? invItem.name : "Unknown Item";
+                }
+
+                items.push({ name, qty, rate, subtotal: qty * rate });
+            });
+
+            const total = items.reduce((sum, itm) => sum + itm.subtotal, 0);
             const c = clients.find(x => x.id === clientId);
             
             invoices.push({
                 id: 'INV-' + Math.random().toString(36).substr(2, 5).toUpperCase(),
-                clientId,
-                clientName,
+                clientId, clientName,
                 date: document.getElementById('bill-date').value,
-                items: document.getElementById('bill-items').value,
-                amount: amt,
-                tax: c.verified ? amt * 0.0112 : 0,
+                items: items, // Now an array
+                amount: total,
+                tax: c.verified ? total * 0.0112 : 0,
                 ts: Date.now()
             });
 
@@ -464,7 +626,6 @@
             sel.innerHTML = '<option value="">Choose Invoice...</option>' + 
                 open.map(i => `<option value="${i.id}">${i.id} - ${i.clientName}</option>`).join('');
             document.getElementById('pay-info-box').classList.add('hidden');
-            document.getElementById('pay-date').valueAsDate = new Date();
         }
 
         function updatePayInfo() {
@@ -481,17 +642,9 @@
             const invId = document.getElementById('pay-inv-id').value;
             const amt = parseFloat(document.getElementById('pay-amount').value) || 0;
             const date = document.getElementById('pay-date').value;
-            
             if(!invId || amt <= 0 || !date) return;
-
-            payments.push({
-                invId,
-                amount: amt,
-                date: date
-            });
-
-            save();
-            showPage('ledger');
+            payments.push({ invId, amount: amt, date });
+            save(); showPage('ledger');
         }
 
         // --- LEDGER LOGIC ---
@@ -509,14 +662,6 @@
             return 'unpaid';
         }
 
-        function getPaymentLabel(id) {
-            const bal = getBalance(id);
-            const inv = invoices.find(x => x.id === id);
-            if(bal === 0) return "FULLY PAID";
-            if(bal < inv.amount) return "DOWN PAYMENT";
-            return "NO PAYMENT";
-        }
-
         function renderLedger() {
             const query = document.getElementById('search-box').value.toLowerCase();
             const filter = document.getElementById('status-filter').value;
@@ -526,16 +671,15 @@
             const data = invoices.filter(i => {
                 const bal = getBalance(i.id);
                 const status = getStatus(i.id);
-                const label = getPaymentLabel(i.id);
-                const searchStr = `${i.id} ${i.clientName} ${i.items} ${status} ${label}`.toLowerCase();
-                
+                const itemsStr = i.items.map(it => it.name).join(', ');
+                const searchStr = `${i.id} ${i.clientName} ${itemsStr} ${status}`.toLowerCase();
                 return searchStr.includes(query) && (filter === 'all' || status === filter);
             }).sort((a,b) => b.ts - a.ts);
 
             data.forEach(i => {
                 const bal = getBalance(i.id);
                 const status = getStatus(i.id);
-                const label = getPaymentLabel(i.id);
+                const itemSummary = i.items.map(it => `${it.qty}x ${it.name}`).join('<br>');
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -543,11 +687,11 @@
                         <div style="font-weight: 800;">${i.clientName}</div>
                         <div style="font-size: 0.65rem; color: var(--text-muted);">${i.id} | ${i.date}</div>
                     </td>
-                    <td style="color: var(--text-muted); font-size: 0.75rem; max-width: 200px;">${i.items || '-'}</td>
+                    <td style="color: var(--text-muted); font-size: 0.75rem;">${itemSummary}</td>
                     <td style="font-weight: 700;">${formatCurrency(i.amount)}</td>
                     <td style="font-weight: 900; color: var(--brand-orange);">${formatCurrency(bal)}</td>
                     <td>
-                        <span style="font-size: 0.65rem; font-weight: 900; color: ${label === 'NO PAYMENT' ? '#94a3b8' : 'var(--brand-orange)'}">${label}</span>
+                        <span style="font-size: 0.65rem; font-weight: 900; color: var(--brand-orange)">${bal === 0 ? 'FULLY PAID' : (bal < i.amount ? 'DOWN PAYMENT' : 'UNPAID')}</span>
                     </td>
                     <td><span class="badge badge-${status}">${status}</span></td>
                 `;
@@ -573,9 +717,17 @@
             return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(n);
         }
 
-        window.onload = () => {
-            showPage('home');
+        function toggleManualClient() {
+            const val = document.getElementById('bill-client-id').value;
+            document.getElementById('manual-client-box').classList.toggle('hidden', val !== 'NEW');
         }
+
+        function goToStep(n) {
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`bill-step-${n}`).classList.add('active');
+        }
+
+        window.onload = () => showPage('home');
     </script>
 </body>
 </html>
