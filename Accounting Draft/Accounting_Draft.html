@@ -101,9 +101,23 @@
         /* Steps */
         .step-content { display: none; }
         .step-content.active { display: block; }
+
+        /* --- FOR TESTING ONLY: START UI --- */
+        .test-banner { 
+            background: #0F172A; color: #FACC15; padding: 8px; text-align: center; 
+            font-size: 0.7rem; font-weight: 900; letter-spacing: 1px;
+        }
+        /* --- FOR TESTING ONLY: END UI --- */
     </style>
 </head>
 <body>
+
+    <!-- --- FOR TESTING ONLY: START BANNER --- -->
+    <div class="test-banner" id="test-banner">
+        DEVELOPMENT MODE: <button onclick="injectTestData()" style="background: #FACC15; border: none; padding: 2px 8px; border-radius: 4px; font-weight: 900; cursor: pointer; margin-left: 10px;">LOAD TEST DATA</button>
+        <button onclick="clearAllData()" style="background: #ef4444; color: white; border: none; padding: 2px 8px; border-radius: 4px; font-weight: 900; cursor: pointer; margin-left: 5px;">WIPE ALL DATA</button>
+    </div>
+    <!-- --- FOR TESTING ONLY: END BANNER --- -->
 
     <nav>
         <div class="nav-logo" onclick="switchPage('home')">
@@ -684,6 +698,47 @@
         function formatCurrency(n) {
             return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(n);
         }
+
+        // --- FOR TESTING ONLY: START LOGIC ---
+        function injectTestData() {
+            const testClients = [
+                { id: 'TCL-1', name: 'Metro Mart Corp', branch: 'Makati Main', owner: 'Juan Dela Cruz' },
+                { id: 'TCL-2', name: 'Seven-Eleven Phils', branch: 'Ortigas Center', owner: 'Robert Lim' },
+                { id: 'TCL-3', name: 'Healthy Eats Bistro', branch: 'BGC Stopover', owner: 'Ana Santos' },
+                { id: 'TCL-4', name: 'TechHub Solutions', branch: 'Cyberzone SM', owner: 'Mark Wilson' },
+                { id: 'TCL-5', name: 'Greenwich Pizza', branch: 'Pasig Ave', owner: 'Elena Gomez' }
+            ];
+
+            const testInventory = [
+                { id: 'TITM-1', type: 'Hardware', name: 'Touchscreen POS Terminal i5', price: 24500 },
+                { id: 'TITM-2', type: 'Hardware', name: '80mm Thermal Receipt Printer', price: 4200 },
+                { id: 'TITM-3', type: 'Hardware', name: 'Electronic Cash Drawer (Large)', price: 3800 },
+                { id: 'TITM-4', type: 'Hardware', name: '2D Handheld Barcode Scanner', price: 2900 },
+                { id: 'TITM-5', type: 'Software', name: 'Siluxnt POS Cloud License (Annual)', price: 12000 },
+                { id: 'TITM-6', type: 'Software', name: 'Inventory Management Module', price: 5500 },
+                { id: 'TITM-7', type: 'Software', name: 'Kitchen Display System (KDS)', price: 8000 },
+                { id: 'TITM-8', type: 'Service', name: 'On-site Hardware Installation', price: 2500 },
+                { id: 'TITM-9', type: 'Service', name: 'Staff Training & Onboarding', price: 1500 },
+                { id: 'TITM-10', type: 'Service', name: 'Premium Support Subscription (Mo)', price: 950 }
+            ];
+
+            db.clients = testClients;
+            db.inventory = testInventory;
+            saveDb();
+            renderClients();
+            renderInventory();
+            alert("Test Data (5 Clients & 10 POS Items) Loaded Successfully!");
+        }
+
+        function clearAllData() {
+            if(confirm("WIPE ALL DATA? This cannot be undone.")) {
+                localStorage.clear();
+                db = { clients: [], inventory: [], invoices: [], payments: [] };
+                saveDb();
+                location.reload();
+            }
+        }
+        // --- FOR TESTING ONLY: END LOGIC ---
 
         window.onload = () => switchPage('home');
     </script>
