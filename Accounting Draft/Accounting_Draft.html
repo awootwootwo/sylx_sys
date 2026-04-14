@@ -22,7 +22,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
         body { background-color: var(--bg-canvas); color: var(--text-main); line-height: 1.6; }
 
-        /* Navigation */
+        /* --- Navigation --- */
         nav {
             position: sticky; top: 0; z-index: 100;
             background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
@@ -30,30 +30,34 @@
             padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
         }
         .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 900; font-style: italic; color: var(--brand-orange); font-size: 1.25rem; cursor: pointer; }
-        .nav-links { display: flex; gap: 4px; background: #F1F5F9; padding: 4px; border-radius: var(--radius-lg); }
+        .nav-links { display: flex; gap: 4px; background: #F1F5F9; padding: 4px; border-radius: var(--radius-lg); overflow-x: auto; }
         .nav-btn {
             border: none; background: transparent; padding: 6px 14px; border-radius: 8px;
-            font-size: 0.8rem; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.2s;
+            font-size: 0.8rem; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.2s; white-space: nowrap;
         }
         .nav-btn.active { background: white; color: var(--brand-orange); box-shadow: var(--shadow); }
 
-        /* Main Content */
+        /* --- Main Content --- */
         main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
         .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; }
         .page-title h1 { font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; }
         .page-title p { color: var(--text-muted); font-size: 0.9rem; }
 
-        /* Dashboard Stats */
+        /* --- Dashboard Stats --- */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
         .stat-card { background: white; padding: 1.5rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         .stat-label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-value { font-size: 1.5rem; font-weight: 900; margin-top: 0.5rem; }
 
-        /* Cards & Forms */
+        /* --- Cards & Forms --- */
         .card { background: white; border-radius: var(--radius-xl); border: 1px solid var(--border-color); padding: 2rem; box-shadow: var(--shadow); }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .form-group { margin-bottom: 1.25rem; }
         .form-group.full { grid-column: span 2; }
+        .search-group { position: relative; margin-bottom: 1rem; }
+        .search-group i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 16px; }
+        .search-group input { padding-left: 40px; }
+
         label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem; }
         input, select, textarea {
             width: 100%; padding: 0.75rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);
@@ -61,12 +65,12 @@
         }
         input:focus { border-color: var(--brand-orange); outline: none; background: white; box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.1); }
 
-        /* Billing Table UI */
+        /* --- Billing Table UI (Dynamic Itemizer) --- */
         .itemizer { margin-top: 1rem; }
         .item-row { display: grid; grid-template-columns: 3fr 1fr 1.5fr 40px; gap: 0.75rem; margin-bottom: 0.75rem; align-items: start; }
         .row-total { font-weight: 700; font-size: 0.85rem; color: var(--brand-orange); padding-top: 0.5rem; }
 
-        /* Buttons */
+        /* --- Buttons --- */
         .btn {
             padding: 0.75rem 1.25rem; border-radius: var(--radius-lg); font-weight: 700; font-size: 0.85rem;
             cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px;
@@ -77,19 +81,19 @@
         .btn-ghost { background: transparent; color: var(--text-muted); }
         .btn-ghost:hover { color: var(--brand-orange); }
 
-        /* Tables */
+        /* --- Standard Data Tables --- */
         .table-wrap { background: white; border-radius: var(--radius-xl); border: 1px solid var(--border-color); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th { padding: 1rem; background: #F8FAFC; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
         td { padding: 1rem; border-top: 1px solid var(--border-color); font-size: 0.85rem; vertical-align: middle; }
 
-        /* Badges */
+        /* --- Badges --- */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
         .badge-pending { background: #FEF9C3; color: #854D0E; }
         .badge-paid { background: #DCFCE7; color: #166534; }
         .badge-unpaid { background: #FEE2E2; color: #991B1B; }
 
-        /* Utility */
+        /* --- Utility & Modals --- */
         .hidden { display: none; }
         .summary-box { background: #F1F5F9; padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1.5rem; }
         .modal-overlay { 
@@ -97,27 +101,60 @@
             display: none; align-items: center; justify-content: center; z-index: 1000;
         }
         .modal { background: white; padding: 2rem; border-radius: var(--radius-xl); width: 100%; max-width: 550px; }
-
-        /* Steps */
         .step-content { display: none; }
         .step-content.active { display: block; }
 
-        /* --- FOR TESTING ONLY: START UI --- */
+        /* --- RESPONSIVE OVERRIDES --- */
+
+        /* Tablet (Max 768px) */
+        @media (max-width: 768px) {
+            main { padding: 1rem; }
+            .section-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: span 1; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .item-row { grid-template-columns: 2fr 1fr 1fr 40px; gap: 0.5rem; }
+        }
+
+        /* Mobile (Max 480px) */
+        @media (max-width: 480px) {
+            nav { padding: 0.75rem 1rem; flex-direction: column; gap: 1rem; }
+            .nav-links { width: 100%; justify-content: space-between; }
+            .nav-btn { flex: 1; text-align: center; padding: 8px 4px; font-size: 0.75rem; }
+            
+            .stats-grid { grid-template-columns: 1fr; }
+            .card { padding: 1.25rem; }
+
+            .item-row { grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; position: relative; }
+            .item-row *:nth-child(1) { grid-column: span 2; } 
+            .item-row .btn-ghost { position: absolute; right: -10px; top: 0; }
+
+            .table-wrap { border: none; background: transparent; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tr { background: white; border: 1px solid var(--border-color); border-radius: var(--radius-lg); margin-bottom: 1rem; padding: 0.5rem; box-shadow: var(--shadow); }
+            td { border: none; display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; text-align: right; }
+            td::before { content: attr(data-label); font-weight: 800; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-right: 10px; text-align: left; }
+
+            .modal { width: 95%; padding: 1.5rem; }
+        }
+
+        /* --- FOR TESTING ONLY --- */
         .test-banner { 
             background: #0F172A; color: #FACC15; padding: 8px; text-align: center; 
             font-size: 0.7rem; font-weight: 900; letter-spacing: 1px;
         }
-        /* --- FOR TESTING ONLY: END UI --- */
     </style>
 </head>
 <body>
 
-    <!-- --- FOR TESTING ONLY: START BANNER --- -->
+    <!-- --- FOR TESTING ONLY: START --- -->
     <div class="test-banner" id="test-banner">
-        DEVELOPMENT MODE: <button onclick="injectTestData()" style="background: #FACC15; border: none; padding: 2px 8px; border-radius: 4px; font-weight: 900; cursor: pointer; margin-left: 10px;">LOAD TEST DATA</button>
-        <button onclick="clearAllData()" style="background: #ef4444; color: white; border: none; padding: 2px 8px; border-radius: 4px; font-weight: 900; cursor: pointer; margin-left: 5px;">WIPE ALL DATA</button>
+        DEVELOPMENT MODE: 
+        <button onclick="injectTestData()" style="background: #FACC15; border: none; padding: 2px 8px; border-radius: 4px; font-weight: 900; cursor: pointer; margin-left: 10px;">LOAD POS DATA</button>
+        <button onclick="clearAllData()" style="background: #ef4444; color: white; border: none; padding: 2px 8px; border-radius: 4px; font-weight: 900; cursor: pointer; margin-left: 5px;">WIPE</button>
     </div>
-    <!-- --- FOR TESTING ONLY: END BANNER --- -->
+    <!-- --- FOR TESTING ONLY: END --- -->
 
     <nav>
         <div class="nav-logo" onclick="switchPage('home')">
@@ -206,18 +243,19 @@
             </div>
         </section>
 
-        <!-- PAGE: BILLING (WIZARD) -->
+        <!-- PAGE: BILLING -->
         <section id="page-billing" class="hidden">
             <div class="card" style="max-width: 800px; margin: 0 auto;">
-                <!-- Step 1: Header -->
                 <div id="bill-step-1" class="step-content active">
-                    <h2 style="margin-bottom: 1.5rem;">Create New Invoice</h2>
+                    <h2 style="margin-bottom: 1.5rem;">New Invoice</h2>
                     <div class="form-grid">
                         <div class="form-group full">
-                            <label>Select Client Profile</label>
-                            <select id="bill-client-id">
-                                <option value="">Choose a registered client...</option>
-                            </select>
+                            <label>Client Selection</label>
+                            <div class="search-group">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="bill-client-search" placeholder="Search client name or branch..." oninput="filterBillingClients()">
+                            </div>
+                            <select id="bill-client-id"></select>
                         </div>
                         <div class="form-group">
                             <label>Invoice Date</label>
@@ -225,22 +263,23 @@
                         </div>
                         <div class="form-group">
                             <label>Payment Terms (Days)</label>
-                            <input type="number" id="bill-terms" value="30" placeholder="e.g. 30">
+                            <input type="number" id="bill-terms" value="30">
                         </div>
                     </div>
                     <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
-                        <button class="btn btn-primary" onclick="nextBillingStep(2)">Next: Itemize Particulars <i data-lucide="chevron-right"></i></button>
+                        <button class="btn btn-primary" onclick="nextBillingStep(2)">Next <i data-lucide="chevron-right"></i></button>
                     </div>
                 </div>
 
-                <!-- Step 2: Items -->
                 <div id="bill-step-2" class="step-content">
                     <h2 style="margin-bottom: 1rem;">Itemized Particulars</h2>
-                    <div id="billing-items-list" class="itemizer">
-                        <!-- Dynamic Rows -->
+                    <div class="search-group">
+                        <i data-lucide="filter"></i>
+                        <input type="text" id="bill-item-search" placeholder="Filter inventory catalog..." oninput="updateBillingSelects()">
                     </div>
+                    <div id="billing-items-list" class="itemizer"></div>
                     <button class="btn btn-ghost" onclick="addBillingRow()" style="width: 100%; border: 2px dashed var(--border-color); margin-top: 1rem;">
-                        <i data-lucide="plus-circle"></i> Add Particular
+                        <i data-lucide="plus-circle"></i> Add Item
                     </button>
 
                     <div class="summary-box">
@@ -249,7 +288,7 @@
                             <span id="bill-subtotal">₱0.00</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--brand-orange); font-weight: 700;">
-                            <span>Withholding Tax (1.12%)</span>
+                            <span>Tax (1.12%)</span>
                             <span id="bill-tax">₱0.00</span>
                         </div>
                         <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.75rem 0;">
@@ -261,7 +300,7 @@
 
                     <div style="display: flex; gap: 10px; margin-top: 2rem;">
                         <button class="btn btn-secondary" onclick="nextBillingStep(1)">Back</button>
-                        <button class="btn btn-primary" style="flex: 1" onclick="finalizeInvoice()">Post to Ledger & Generate Invoice</button>
+                        <button class="btn btn-primary" style="flex: 1" onclick="finalizeInvoice()">Save & Post</button>
                     </div>
                 </div>
             </div>
@@ -272,38 +311,37 @@
             <div class="card" style="max-width: 600px; margin: 0 auto;">
                 <h2 style="margin-bottom: 1rem;">Receive Payment</h2>
                 <div class="form-group">
-                    <label>Select Outstanding Invoice</label>
-                    <select id="pay-inv-id" onchange="loadPaymentDetails()">
-                        <option value="">Select Invoice...</option>
-                    </select>
+                    <label>Search Outstanding Invoice</label>
+                    <div class="search-group">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="pay-inv-search" placeholder="Search ID or Client name..." oninput="filterCollectionInvoices()">
+                    </div>
+                    <select id="pay-inv-id" onchange="loadPaymentDetails()"></select>
                 </div>
-
                 <div id="payment-details" class="hidden">
                     <div class="summary-box" style="background: var(--brand-yellow); margin-bottom: 1.5rem;">
                         <label>Included Items:</label>
                         <ul id="pay-items-list" style="font-size: 0.8rem; list-style: none; padding-left: 0; margin-bottom: 1rem;"></ul>
-                        
                         <div style="display: flex; justify-content: space-between; font-weight: 900;">
-                            <span>Remaining Balance:</span>
+                            <span>Balance:</span>
                             <span id="pay-balance-display">₱0.00</span>
                         </div>
                     </div>
-
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Payment Date</label>
                             <input type="date" id="pay-date">
                         </div>
                         <div class="form-group">
-                            <label>Amount Tendered</label>
-                            <input type="number" id="pay-amount" placeholder="0.00">
+                            <label>Amount</label>
+                            <input type="number" id="pay-amount">
                         </div>
                         <div class="form-group full">
-                            <label>Reference / Note (Check #, OR #)</label>
-                            <input type="text" id="pay-ref" placeholder="Enter transaction reference">
+                            <label>Reference Note</label>
+                            <input type="text" id="pay-ref" placeholder="Check # or OR #">
                         </div>
                     </div>
-                    <button class="btn btn-primary" style="width: 100%" onclick="submitPayment()">Confirm & Update Ledger</button>
+                    <button class="btn btn-primary" style="width: 100%" onclick="submitPayment()">Confirm Payment</button>
                 </div>
             </div>
         </section>
@@ -313,7 +351,7 @@
             <div class="section-header">
                 <div class="page-title">
                     <h1>Master <span>Ledger</span></h1>
-                    <p>Auditable trail of all financial interactions.</p>
+                    <p>History of all posted invoices.</p>
                 </div>
             </div>
             <div class="table-wrap">
@@ -339,22 +377,13 @@
         <div class="modal">
             <h2 style="margin-bottom: 1.5rem;">Register Client</h2>
             <div class="form-grid">
-                <div class="form-group full">
-                    <label>Company Legal Name</label>
-                    <input type="text" id="m-client-name" placeholder="e.g. Acme Corp">
-                </div>
-                <div class="form-group">
-                    <label>Branch / Site</label>
-                    <input type="text" id="m-client-branch" placeholder="e.g. Main Office">
-                </div>
-                <div class="form-group">
-                    <label>Owner / Manager</label>
-                    <input type="text" id="m-client-owner" placeholder="Full name">
-                </div>
+                <div class="form-group full"><label>Company</label><input type="text" id="m-client-name"></div>
+                <div class="form-group"><label>Branch</label><input type="text" id="m-client-branch"></div>
+                <div class="form-group"><label>Owner</label><input type="text" id="m-client-owner"></div>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 1rem;">
                 <button class="btn btn-secondary" onclick="closeModal('client-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="saveClient()">Save Entity</button>
+                <button class="btn btn-primary" onclick="saveClient()">Save</button>
             </div>
         </div>
     </div>
@@ -362,25 +391,12 @@
     <div id="inventory-modal" class="modal-overlay">
         <div class="modal">
             <h2 style="margin-bottom: 1.5rem;">Add Catalog Item</h2>
-            <div class="form-group">
-                <label>Item Category</label>
-                <select id="m-inv-type">
-                    <option value="Service">Service</option>
-                    <option value="Software">Product: Software</option>
-                    <option value="Hardware">Product: Hardware</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Item Description</label>
-                <input type="text" id="m-inv-name" placeholder="e.g. Quarterly Maintenance">
-            </div>
-            <div class="form-group">
-                <label>Base Unit Price (PHP)</label>
-                <input type="number" id="m-inv-price" placeholder="0.00">
-            </div>
+            <div class="form-group"><label>Category</label><select id="m-inv-type"><option>Service</option><option>Software</option><option>Hardware</option></select></div>
+            <div class="form-group"><label>Name</label><input type="text" id="m-inv-name"></div>
+            <div class="form-group"><label>Price (PHP)</label><input type="number" id="m-inv-price"></div>
             <div style="display: flex; gap: 10px; margin-top: 1rem;">
                 <button class="btn btn-secondary" onclick="closeModal('inventory-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="saveInventory()">Add to Database</button>
+                <button class="btn btn-primary" onclick="saveInventory()">Add</button>
             </div>
         </div>
     </div>
@@ -402,11 +418,10 @@
             updateStats();
         }
 
-        // --- PAGE CONTROL ---
+        // --- NAVIGATION ---
         function switchPage(pageId) {
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
             document.getElementById(`page-${pageId}`).classList.remove('hidden');
-            
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`nav-${pageId}`).classList.add('active');
 
@@ -416,133 +431,110 @@
             if(pageId === 'collections') setupCollections();
             if(pageId === 'ledger') renderLedger();
             if(pageId === 'home') updateStats();
-            
             lucide.createIcons();
         }
 
-        // --- MODAL CONTROL ---
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         // --- CLIENTS ---
         function saveClient() {
-            const client = {
-                id: 'CL-' + Date.now(),
-                name: document.getElementById('m-client-name').value,
-                branch: document.getElementById('m-client-branch').value,
-                owner: document.getElementById('m-client-owner').value,
-                ts: Date.now()
-            };
+            const client = { id: 'CL-'+Date.now(), name: document.getElementById('m-client-name').value, branch: document.getElementById('m-client-branch').value, owner: document.getElementById('m-client-owner').value };
             if(!client.name) return;
-            db.clients.push(client);
-            saveDb(); closeModal('client-modal'); renderClients();
+            db.clients.push(client); saveDb(); closeModal('client-modal'); renderClients();
         }
-
         function renderClients() {
             const tbody = document.querySelector('#client-table tbody');
             tbody.innerHTML = db.clients.map(c => `
                 <tr>
-                    <td>
-                        <div style="font-weight: 700">${c.name}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted)">${c.branch || 'Main Branch'}</div>
-                    </td>
-                    <td>
-                        <div style="font-weight: 500">${c.owner || 'N/A'}</div>
-                    </td>
-                    <td><span class="badge badge-paid">Active</span></td>
-                    <td><button class="btn btn-ghost" onclick="deleteClient('${c.id}')"><i data-lucide="trash-2" style="width: 14px"></i></button></td>
-                </tr>
-            `).join('');
+                    <td data-label="Company">${c.name} (${c.branch || 'Main'})</td>
+                    <td data-label="Owner">${c.owner || 'N/A'}</td>
+                    <td data-label="Status"><span class="badge badge-paid">Active</span></td>
+                    <td data-label="Action"><button class="btn btn-ghost" onclick="deleteClient('${c.id}')"><i data-lucide="trash-2" style="width:14px"></i></button></td>
+                </tr>`).join('');
             lucide.createIcons();
         }
-
-        function deleteClient(id) {
-            db.clients = db.clients.filter(c => c.id !== id);
-            saveDb(); renderClients();
-        }
+        function deleteClient(id) { db.clients = db.clients.filter(c => c.id !== id); saveDb(); renderClients(); }
 
         // --- INVENTORY ---
         function saveInventory() {
-            const item = {
-                id: 'ITM-' + Date.now(),
-                name: document.getElementById('m-inv-name').value,
-                type: document.getElementById('m-inv-type').value,
-                price: parseFloat(document.getElementById('m-inv-price').value) || 0
-            };
+            const item = { id: 'ITM-'+Date.now(), name: document.getElementById('m-inv-name').value, type: document.getElementById('m-inv-type').value, price: parseFloat(document.getElementById('m-inv-price').value) || 0 };
             if(!item.name) return;
-            db.inventory.push(item);
-            saveDb(); closeModal('inventory-modal'); renderInventory();
+            db.inventory.push(item); saveDb(); closeModal('inventory-modal'); renderInventory();
         }
-
         function renderInventory() {
             const tbody = document.querySelector('#inventory-table tbody');
             tbody.innerHTML = db.inventory.map(i => `
                 <tr>
-                    <td><span class="badge" style="background: #E2E8F0">${i.type}</span></td>
-                    <td style="font-weight: 700">${i.name}</td>
-                    <td>${formatCurrency(i.price)}</td>
-                    <td><button class="btn btn-ghost" onclick="deleteInventory('${i.id}')"><i data-lucide="trash-2" style="width: 14px"></i></button></td>
-                </tr>
-            `).join('');
+                    <td data-label="Type">${i.type}</td>
+                    <td data-label="Name" style="font-weight:700">${i.name}</td>
+                    <td data-label="Rate">${formatCurrency(i.price)}</td>
+                    <td data-label="Action"><button class="btn btn-ghost" onclick="deleteInventory('${i.id}')"><i data-lucide="trash-2" style="width:14px"></i></button></td>
+                </tr>`).join('');
             lucide.createIcons();
         }
+        function deleteInventory(id) { db.inventory = db.inventory.filter(i => i.id !== id); saveDb(); renderInventory(); }
 
-        function deleteInventory(id) {
-            db.inventory = db.inventory.filter(i => i.id !== id);
-            saveDb(); renderInventory();
+        // --- BILLING SEARCH ---
+        function filterBillingClients() {
+            const term = document.getElementById('bill-client-search').value.toLowerCase();
+            const select = document.getElementById('bill-client-id');
+            const filtered = db.clients.filter(c => c.name.toLowerCase().includes(term) || c.branch.toLowerCase().includes(term));
+            
+            select.innerHTML = '<option value="">Choose Client...</option>' + 
+                filtered.map(c => `<option value="${c.id}">${c.name} (${c.branch})</option>`).join('');
         }
 
-        // --- BILLING WIZARD ---
+        function updateBillingSelects() {
+            const term = document.getElementById('bill-item-search').value.toLowerCase();
+            const selects = document.querySelectorAll('.row-select');
+            
+            selects.forEach(sel => {
+                const currentVal = sel.value;
+                const filtered = db.inventory.filter(i => i.name.toLowerCase().includes(term) || i.type.toLowerCase().includes(term));
+                
+                sel.innerHTML = '<option value="">Select Item...</option>' + 
+                    filtered.map(i => `<option value="${i.id}" ${i.id === currentVal ? 'selected' : ''}>${i.name}</option>`).join('');
+            });
+        }
+
+        // --- BILLING LOGIC ---
         let activeBillingRows = [];
         function resetBilling() {
-            nextBillingStep(1);
-            activeBillingRows = [];
-            const select = document.getElementById('bill-client-id');
-            select.innerHTML = '<option value="">Choose a registered client...</option>' + 
-                db.clients.map(c => `<option value="${c.id}">${c.name} (${c.branch})</option>`).join('');
-            
+            nextBillingStep(1); activeBillingRows = [];
+            document.getElementById('bill-client-search').value = '';
+            document.getElementById('bill-item-search').value = '';
+            filterBillingClients();
             document.getElementById('bill-date').valueAsDate = new Date();
             document.getElementById('billing-items-list').innerHTML = '';
             addBillingRow();
         }
 
         function addBillingRow() {
-            const rowId = Date.now();
-            activeBillingRows.push(rowId);
+            const rowId = Date.now(); activeBillingRows.push(rowId);
             const container = document.getElementById('billing-items-list');
             const div = document.createElement('div');
             div.className = 'item-row';
             div.id = `row-${rowId}`;
+            
+            // Apply current inventory filter to new row
+            const term = document.getElementById('bill-item-search').value.toLowerCase();
+            const filtered = db.inventory.filter(i => i.name.toLowerCase().includes(term));
+
             div.innerHTML = `
-                <div>
-                    <select onchange="onItemSelect(${rowId}, this.value)" class="row-select">
-                        <option value="">Select Item...</option>
-                        ${db.inventory.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}
-                    </select>
-                </div>
+                <select onchange="onItemSelect(${rowId}, this.value)" class="row-select">
+                    <option value="">Select Item...</option>
+                    ${filtered.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}
+                </select>
                 <input type="number" value="1" min="1" oninput="recalcBill()" class="row-qty">
                 <input type="number" placeholder="0.00" oninput="recalcBill()" class="row-price">
-                <button class="btn btn-ghost" onclick="removeBillingRow(${rowId})"><i data-lucide="x" style="width: 16px"></i></button>
-            `;
-            container.appendChild(div);
-            lucide.createIcons();
+                <button class="btn btn-ghost" onclick="removeBillingRow(${rowId})"><i data-lucide="x" style="width:16px"></i></button>`;
+            container.appendChild(div); lucide.createIcons();
         }
 
-        function removeBillingRow(id) {
-            activeBillingRows = activeBillingRows.filter(r => r !== id);
-            document.getElementById(`row-${id}`).remove();
-            recalcBill();
-        }
-
-        function onItemSelect(rowId, itemId) {
-            const item = db.inventory.find(i => i.id === itemId);
-            if(item) {
-                const row = document.getElementById(`row-${rowId}`);
-                row.querySelector('.row-price').value = item.price;
-            }
-            recalcBill();
-        }
-
+        function removeBillingRow(id) { activeBillingRows = activeBillingRows.filter(r => r !== id); document.getElementById(`row-${id}`).remove(); recalcBill(); }
+        function onItemSelect(rowId, itemId) { const item = db.inventory.find(i => i.id === itemId); if(item) document.getElementById(`row-${rowId}`).querySelector('.row-price').value = item.price; recalcBill(); }
+        
         function recalcBill() {
             let subtotal = 0;
             activeBillingRows.forEach(id => {
@@ -551,165 +543,108 @@
                 const price = parseFloat(row.querySelector('.row-price').value) || 0;
                 subtotal += (qty * price);
             });
-
             const tax = subtotal * 0.0112;
-            const total = subtotal + tax;
-
             document.getElementById('bill-subtotal').innerText = formatCurrency(subtotal);
             document.getElementById('bill-tax').innerText = formatCurrency(tax);
-            document.getElementById('bill-total').innerText = formatCurrency(total);
+            document.getElementById('bill-total').innerText = formatCurrency(subtotal + tax);
         }
 
-        function nextBillingStep(n) {
-            document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
-            document.getElementById(`bill-step-${n}`).classList.add('active');
-        }
-
+        function nextBillingStep(n) { document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active')); document.getElementById(`bill-step-${n}`).classList.add('active'); }
+        
         function finalizeInvoice() {
-            const clientId = document.getElementById('bill-client-id').value;
-            if(!clientId) return alert("Select a client first.");
-
+            const clientId = document.getElementById('bill-client-id').value; if(!clientId) return;
             const client = db.clients.find(c => c.id === clientId);
             const items = activeBillingRows.map(id => {
                 const row = document.getElementById(`row-${id}`);
                 const select = row.querySelector('.row-select');
-                const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
-                const price = parseFloat(row.querySelector('.row-price').value) || 0;
-                return {
-                    name: select.options[select.selectedIndex].text,
-                    qty, price, subtotal: qty * price
-                };
+                return { name: select.options[select.selectedIndex].text, qty: parseFloat(row.querySelector('.row-qty').value) || 0, price: parseFloat(row.querySelector('.row-price').value) || 0 };
             }).filter(i => i.qty > 0);
-
-            if(items.length === 0) return alert("Add at least one item.");
-
-            const subtotal = items.reduce((s, i) => s + i.subtotal, 0);
-            const tax = subtotal * 0.0112;
-
-            const invoice = {
-                id: 'INV-' + Math.floor(Math.random() * 90000 + 10000),
-                clientId,
-                clientName: `${client.name} (${client.branch})`,
-                date: document.getElementById('bill-date').value,
-                terms: document.getElementById('bill-terms').value,
-                items,
-                subtotal,
-                tax,
-                total: subtotal + tax,
-                ts: Date.now()
-            };
-
-            db.invoices.push(invoice);
-            saveDb();
-            switchPage('ledger');
+            const subtotal = items.reduce((s, i) => s + (i.qty * i.price), 0);
+            const invoice = { id: 'INV-'+Math.floor(Math.random()*90000+10000), clientId, clientName: `${client.name} (${client.branch})`, date: document.getElementById('bill-date').value, terms: document.getElementById('bill-terms').value, items, total: subtotal + (subtotal * 0.0112), tax: subtotal * 0.0112, ts: Date.now() };
+            db.invoices.push(invoice); saveDb(); switchPage('ledger');
         }
 
-        // --- COLLECTIONS ---
-        function setupCollections() {
+        // --- COLLECTIONS SEARCH ---
+        function filterCollectionInvoices() {
+            const term = document.getElementById('pay-inv-search').value.toLowerCase();
             const select = document.getElementById('pay-inv-id');
-            const openInvoices = db.invoices.filter(inv => getInvoiceBalance(inv.id) > 0);
+            const openInvoices = db.invoices.filter(inv => {
+                const isMatch = inv.id.toLowerCase().includes(term) || inv.clientName.toLowerCase().includes(term);
+                return isMatch && getInvoiceBalance(inv.id) > 0;
+            });
             
             select.innerHTML = '<option value="">Select Invoice...</option>' + 
                 openInvoices.map(inv => `<option value="${inv.id}">${inv.id} - ${inv.clientName}</option>`).join('');
             
+            loadPaymentDetails(); // Refresh details if current selection filtered out
+        }
+
+        function setupCollections() {
+            document.getElementById('pay-inv-search').value = '';
+            filterCollectionInvoices();
             document.getElementById('payment-details').classList.add('hidden');
         }
 
         function loadPaymentDetails() {
-            const invId = document.getElementById('pay-inv-id').value;
-            if(!invId) return;
-
+            const invId = document.getElementById('pay-inv-id').value; 
+            if(!invId) {
+                document.getElementById('payment-details').classList.add('hidden');
+                return;
+            }
             const inv = db.invoices.find(i => i.id === invId);
             const bal = getInvoiceBalance(invId);
-
             document.getElementById('payment-details').classList.remove('hidden');
             document.getElementById('pay-balance-display').innerText = formatCurrency(bal);
             document.getElementById('pay-amount').value = bal;
             document.getElementById('pay-date').valueAsDate = new Date();
-
-            // Render list of items being paid
-            const itemList = document.getElementById('pay-items-list');
-            itemList.innerHTML = inv.items.map(i => `<li>• ${i.qty}x ${i.name} (@ ${formatCurrency(i.price)})</li>`).join('');
+            document.getElementById('pay-items-list').innerHTML = inv.items.map(i => `<li>• ${i.qty}x ${i.name}</li>`).join('');
         }
 
         function submitPayment() {
-            const invId = document.getElementById('pay-inv-id').value;
-            const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
-            const date = document.getElementById('pay-date').value;
-            const ref = document.getElementById('pay-ref').value;
-
-            if(!invId || amount <= 0 || !date) return;
-
-            db.payments.push({ id: 'PAY-' + Date.now(), invId, amount, date, ref });
-            saveDb();
-            switchPage('ledger');
+            const invId = document.getElementById('pay-inv-id').value; const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
+            if(!invId || amount <= 0) return;
+            db.payments.push({ id: 'PAY-'+Date.now(), invId, amount, date: document.getElementById('pay-date').value, ref: document.getElementById('pay-ref').value });
+            saveDb(); switchPage('ledger');
         }
 
-        // --- LEDGER & CORE LOGIC ---
-        function getInvoiceBalance(id) {
-            const inv = db.invoices.find(i => i.id === id);
-            const totalPaid = db.payments.filter(p => p.invId === id).reduce((s, p) => s + p.amount, 0);
-            return Math.max(0, inv.total - totalPaid);
-        }
-
+        // --- LEDGER ---
+        function getInvoiceBalance(id) { const inv = db.invoices.find(i => i.id === id); const paid = db.payments.filter(p => p.invId === id).reduce((s, p) => s + p.amount, 0); return Math.max(0, inv.total - paid); }
         function renderLedger() {
             const tbody = document.getElementById('ledger-body');
-            tbody.innerHTML = '';
-
-            const sorted = [...db.invoices].sort((a,b) => b.ts - a.ts);
-            sorted.forEach(i => {
+            tbody.innerHTML = db.invoices.sort((a,b) => b.ts - a.ts).map(i => {
                 const bal = getInvoiceBalance(i.id);
-                let status = 'unpaid';
-                if(bal <= 0) status = 'paid';
-                else if(bal < i.total) status = 'pending';
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="font-weight: 800">${i.id}</td>
-                    <td>
-                        <div>${i.date}</div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted)">NET ${i.terms} Days</div>
-                    </td>
-                    <td>
-                        <div style="font-weight: 700">${i.clientName}</div>
-                    </td>
-                    <td style="font-weight: 700">${formatCurrency(i.total)}</td>
-                    <td style="font-weight: 900; color: var(--brand-orange)">${formatCurrency(bal)}</td>
-                    <td><span class="badge badge-${status}">${status}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
+                const status = bal <= 0 ? 'paid' : (bal < i.total ? 'pending' : 'unpaid');
+                return `<tr>
+                    <td data-label="Ref #"><b>${i.id}</b></td>
+                    <td data-label="Date/Terms">${i.date}<br><small>NET ${i.terms}</small></td>
+                    <td data-label="Client">${i.clientName}</td>
+                    <td data-label="Total">${formatCurrency(i.total)}</td>
+                    <td data-label="Balance" style="color:var(--brand-orange)"><b>${formatCurrency(bal)}</b></td>
+                    <td data-label="Status"><span class="badge badge-${status}">${status}</span></td>
+                </tr>`;
+            }).join('');
         }
 
         function updateStats() {
             let ar = 0, rev = 0, tax = 0;
-            db.invoices.forEach(i => {
-                const bal = getInvoiceBalance(i.id);
-                ar += bal;
-                rev += (i.total - bal);
-                tax += i.tax;
-            });
-
+            db.invoices.forEach(i => { const bal = getInvoiceBalance(i.id); ar += bal; rev += (i.total - bal); tax += i.tax; });
             document.getElementById('stat-ar').innerText = formatCurrency(ar);
             document.getElementById('stat-rev').innerText = formatCurrency(rev);
             document.getElementById('stat-tax').innerText = formatCurrency(tax);
         }
 
-        function formatCurrency(n) {
-            return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(n);
-        }
+        function formatCurrency(n) { return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(n); }
 
-        // --- FOR TESTING ONLY: START LOGIC ---
+        // --- FOR TESTING ONLY: START ---
         function injectTestData() {
-            const testClients = [
+            db.clients = [
                 { id: 'TCL-1', name: 'Metro Mart Corp', branch: 'Makati Main', owner: 'Juan Dela Cruz' },
                 { id: 'TCL-2', name: 'Seven-Eleven Phils', branch: 'Ortigas Center', owner: 'Robert Lim' },
                 { id: 'TCL-3', name: 'Healthy Eats Bistro', branch: 'BGC Stopover', owner: 'Ana Santos' },
                 { id: 'TCL-4', name: 'TechHub Solutions', branch: 'Cyberzone SM', owner: 'Mark Wilson' },
                 { id: 'TCL-5', name: 'Greenwich Pizza', branch: 'Pasig Ave', owner: 'Elena Gomez' }
             ];
-
-            const testInventory = [
+            db.inventory = [
                 { id: 'TITM-1', type: 'Hardware', name: 'Touchscreen POS Terminal i5', price: 24500 },
                 { id: 'TITM-2', type: 'Hardware', name: '80mm Thermal Receipt Printer', price: 4200 },
                 { id: 'TITM-3', type: 'Hardware', name: 'Electronic Cash Drawer (Large)', price: 3800 },
@@ -721,24 +656,11 @@
                 { id: 'TITM-9', type: 'Service', name: 'Staff Training & Onboarding', price: 1500 },
                 { id: 'TITM-10', type: 'Service', name: 'Premium Support Subscription (Mo)', price: 950 }
             ];
-
-            db.clients = testClients;
-            db.inventory = testInventory;
-            saveDb();
-            renderClients();
-            renderInventory();
-            alert("Test Data (5 Clients & 10 POS Items) Loaded Successfully!");
+            saveDb(); switchPage('home');
+            alert("POS Test Data Loaded!");
         }
-
-        function clearAllData() {
-            if(confirm("WIPE ALL DATA? This cannot be undone.")) {
-                localStorage.clear();
-                db = { clients: [], inventory: [], invoices: [], payments: [] };
-                saveDb();
-                location.reload();
-            }
-        }
-        // --- FOR TESTING ONLY: END LOGIC ---
+        function clearAllData() { localStorage.clear(); db = { clients:[], inventory:[], invoices:[], payments:[] }; saveDb(); location.reload(); }
+        // --- FOR TESTING ONLY: END ---
 
         window.onload = () => switchPage('home');
     </script>
