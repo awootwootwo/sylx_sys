@@ -363,4 +363,306 @@
                             <th>Client / Branch</th>
                             <th>Amount</th>
                             <th>Balance</th>
-                            <th>Status</
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledger-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODALS -->
+    <div id="client-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 style="margin-bottom: 1.5rem;">Register Client</h2>
+            <div class="form-grid">
+                <div class="form-group full"><label>Company</label><input type="text" id="m-client-name"></div>
+                <div class="form-group"><label>Branch</label><input type="text" id="m-client-branch"></div>
+                <div class="form-group"><label>Owner</label><input type="text" id="m-client-owner"></div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <button class="btn btn-secondary" onclick="closeModal('client-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveClient()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="inventory-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 style="margin-bottom: 1.5rem;">Add Catalog Item</h2>
+            <div class="form-group"><label>Category</label><select id="m-inv-type"><option>Service</option><option>Software</option><option>Hardware</option></select></div>
+            <div class="form-group"><label>Name</label><input type="text" id="m-inv-name"></div>
+            <div class="form-group"><label>Price (PHP)</label><input type="number" id="m-inv-price"></div>
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <button class="btn btn-secondary" onclick="closeModal('inventory-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveInventory()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STORE ---
+        let db = {
+            clients: JSON.parse(localStorage.getItem('sl_clients')) || [],
+            inventory: JSON.parse(localStorage.getItem('sl_inventory')) || [],
+            invoices: JSON.parse(localStorage.getItem('sl_invoices')) || [],
+            payments: JSON.parse(localStorage.getItem('sl_payments')) || []
+        };
+
+        function saveDb() {
+            localStorage.setItem('sl_clients', JSON.stringify(db.clients));
+            localStorage.setItem('sl_inventory', JSON.stringify(db.inventory));
+            localStorage.setItem('sl_invoices', JSON.stringify(db.invoices));
+            localStorage.setItem('sl_payments', JSON.stringify(db.payments));
+            updateStats();
+        }
+
+        // --- NAVIGATION ---
+        function switchPage(pageId) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`nav-${pageId}`).classList.add('active');
+
+            if(pageId === 'clients') renderClients();
+            if(pageId === 'inventory') renderInventory();
+            if(pageId === 'billing') resetBilling();
+            if(pageId === 'collections') setupCollections();
+            if(pageId === 'ledger') renderLedger();
+            if(pageId === 'home') updateStats();
+            lucide.createIcons();
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // --- CLIENTS ---
+        function saveClient() {
+            const client = { id: 'CL-'+Date.now(), name: document.getElementById('m-client-name').value, branch: document.getElementById('m-client-branch').value, owner: document.getElementById('m-client-owner').value };
+            if(!client.name) return;
+            db.clients.push(client); saveDb(); closeModal('client-modal'); renderClients();
+        }
+        function renderClients() {
+            const tbody = document.querySelector('#client-table tbody');
+            tbody.innerHTML = db.clients.map(c => `
+                <tr>
+                    <td data-label="Company">${c.name} (${c.branch || 'Main'})</td>
+                    <td data-label="Owner">${c.owner || 'N/A'}</td>
+                    <td data-label="Status"><span class="badge badge-paid">Active</span></td>
+                    <td data-label="Action"><button class="btn btn-ghost" onclick="deleteClient('${c.id}')"><i data-lucide="trash-2" style="width:14px"></i></button></td>
+                </tr>`).join('');
+            lucide.createIcons();
+        }
+        function deleteClient(id) { db.clients = db.clients.filter(c => c.id !== id); saveDb(); renderClients(); }
+
+        // --- INVENTORY ---
+        function saveInventory() {
+            const item = { id: 'ITM-'+Date.now(), name: document.getElementById('m-inv-name').value, type: document.getElementById('m-inv-type').value, price: parseFloat(document.getElementById('m-inv-price').value) || 0 };
+            if(!item.name) return;
+            db.inventory.push(item); saveDb(); closeModal('inventory-modal'); renderInventory();
+        }
+        function renderInventory() {
+            const tbody = document.querySelector('#inventory-table tbody');
+            tbody.innerHTML = db.inventory.map(i => `
+                <tr>
+                    <td data-label="Type">${i.type}</td>
+                    <td data-label="Name" style="font-weight:700">${i.name}</td>
+                    <td data-label="Rate">${formatCurrency(i.price)}</td>
+                    <td data-label="Action"><button class="btn btn-ghost" onclick="deleteInventory('${i.id}')"><i data-lucide="trash-2" style="width:14px"></i></button></td>
+                </tr>`).join('');
+            lucide.createIcons();
+        }
+        function deleteInventory(id) { db.inventory = db.inventory.filter(i => i.id !== id); saveDb(); renderInventory(); }
+
+        // --- BILLING SEARCH ---
+        function filterBillingClients() {
+            const term = document.getElementById('bill-client-search').value.toLowerCase();
+            const select = document.getElementById('bill-client-id');
+            const filtered = db.clients.filter(c => c.name.toLowerCase().includes(term) || c.branch.toLowerCase().includes(term));
+            
+            select.innerHTML = '<option value="">Choose Client...</option>' + 
+                filtered.map(c => `<option value="${c.id}">${c.name} (${c.branch})</option>`).join('');
+        }
+
+        function updateBillingSelects() {
+            const term = document.getElementById('bill-item-search').value.toLowerCase();
+            const selects = document.querySelectorAll('.row-select');
+            
+            selects.forEach(sel => {
+                const currentVal = sel.value;
+                const filtered = db.inventory.filter(i => i.name.toLowerCase().includes(term) || i.type.toLowerCase().includes(term));
+                
+                sel.innerHTML = '<option value="">Select Item...</option>' + 
+                    filtered.map(i => `<option value="${i.id}" ${i.id === currentVal ? 'selected' : ''}>${i.name}</option>`).join('');
+            });
+        }
+
+        // --- BILLING LOGIC ---
+        let activeBillingRows = [];
+        function resetBilling() {
+            nextBillingStep(1); activeBillingRows = [];
+            document.getElementById('bill-client-search').value = '';
+            document.getElementById('bill-item-search').value = '';
+            filterBillingClients();
+            document.getElementById('bill-date').valueAsDate = new Date();
+            document.getElementById('billing-items-list').innerHTML = '';
+            addBillingRow();
+        }
+
+        function addBillingRow() {
+            const rowId = Date.now(); activeBillingRows.push(rowId);
+            const container = document.getElementById('billing-items-list');
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.id = `row-${rowId}`;
+            
+            // Apply current inventory filter to new row
+            const term = document.getElementById('bill-item-search').value.toLowerCase();
+            const filtered = db.inventory.filter(i => i.name.toLowerCase().includes(term));
+
+            div.innerHTML = `
+                <select onchange="onItemSelect(${rowId}, this.value)" class="row-select">
+                    <option value="">Select Item...</option>
+                    ${filtered.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}
+                </select>
+                <input type="number" value="1" min="1" oninput="recalcBill()" class="row-qty">
+                <input type="number" placeholder="0.00" oninput="recalcBill()" class="row-price">
+                <button class="btn btn-ghost" onclick="removeBillingRow(${rowId})"><i data-lucide="x" style="width:16px"></i></button>`;
+            container.appendChild(div); lucide.createIcons();
+        }
+
+        function removeBillingRow(id) { activeBillingRows = activeBillingRows.filter(r => r !== id); document.getElementById(`row-${id}`).remove(); recalcBill(); }
+        function onItemSelect(rowId, itemId) { const item = db.inventory.find(i => i.id === itemId); if(item) document.getElementById(`row-${rowId}`).querySelector('.row-price').value = item.price; recalcBill(); }
+        
+        function recalcBill() {
+            let subtotal = 0;
+            activeBillingRows.forEach(id => {
+                const row = document.getElementById(`row-${id}`);
+                const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.row-price').value) || 0;
+                subtotal += (qty * price);
+            });
+            const tax = subtotal * 0.0112;
+            document.getElementById('bill-subtotal').innerText = formatCurrency(subtotal);
+            document.getElementById('bill-tax').innerText = formatCurrency(tax);
+            document.getElementById('bill-total').innerText = formatCurrency(subtotal + tax);
+        }
+
+        function nextBillingStep(n) { document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active')); document.getElementById(`bill-step-${n}`).classList.add('active'); }
+        
+        function finalizeInvoice() {
+            const clientId = document.getElementById('bill-client-id').value; if(!clientId) return;
+            const client = db.clients.find(c => c.id === clientId);
+            const items = activeBillingRows.map(id => {
+                const row = document.getElementById(`row-${id}`);
+                const select = row.querySelector('.row-select');
+                return { name: select.options[select.selectedIndex].text, qty: parseFloat(row.querySelector('.row-qty').value) || 0, price: parseFloat(row.querySelector('.row-price').value) || 0 };
+            }).filter(i => i.qty > 0);
+            const subtotal = items.reduce((s, i) => s + (i.qty * i.price), 0);
+            const invoice = { id: 'INV-'+Math.floor(Math.random()*90000+10000), clientId, clientName: `${client.name} (${client.branch})`, date: document.getElementById('bill-date').value, terms: document.getElementById('bill-terms').value, items, total: subtotal + (subtotal * 0.0112), tax: subtotal * 0.0112, ts: Date.now() };
+            db.invoices.push(invoice); saveDb(); switchPage('ledger');
+        }
+
+        // --- COLLECTIONS SEARCH ---
+        function filterCollectionInvoices() {
+            const term = document.getElementById('pay-inv-search').value.toLowerCase();
+            const select = document.getElementById('pay-inv-id');
+            const openInvoices = db.invoices.filter(inv => {
+                const isMatch = inv.id.toLowerCase().includes(term) || inv.clientName.toLowerCase().includes(term);
+                return isMatch && getInvoiceBalance(inv.id) > 0;
+            });
+            
+            select.innerHTML = '<option value="">Select Invoice...</option>' + 
+                openInvoices.map(inv => `<option value="${inv.id}">${inv.id} - ${inv.clientName}</option>`).join('');
+            
+            loadPaymentDetails(); // Refresh details if current selection filtered out
+        }
+
+        function setupCollections() {
+            document.getElementById('pay-inv-search').value = '';
+            filterCollectionInvoices();
+            document.getElementById('payment-details').classList.add('hidden');
+        }
+
+        function loadPaymentDetails() {
+            const invId = document.getElementById('pay-inv-id').value; 
+            if(!invId) {
+                document.getElementById('payment-details').classList.add('hidden');
+                return;
+            }
+            const inv = db.invoices.find(i => i.id === invId);
+            const bal = getInvoiceBalance(invId);
+            document.getElementById('payment-details').classList.remove('hidden');
+            document.getElementById('pay-balance-display').innerText = formatCurrency(bal);
+            document.getElementById('pay-amount').value = bal;
+            document.getElementById('pay-date').valueAsDate = new Date();
+            document.getElementById('pay-items-list').innerHTML = inv.items.map(i => `<li>• ${i.qty}x ${i.name}</li>`).join('');
+        }
+
+        function submitPayment() {
+            const invId = document.getElementById('pay-inv-id').value; const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
+            if(!invId || amount <= 0) return;
+            db.payments.push({ id: 'PAY-'+Date.now(), invId, amount, date: document.getElementById('pay-date').value, ref: document.getElementById('pay-ref').value });
+            saveDb(); switchPage('ledger');
+        }
+
+        // --- LEDGER ---
+        function getInvoiceBalance(id) { const inv = db.invoices.find(i => i.id === id); const paid = db.payments.filter(p => p.invId === id).reduce((s, p) => s + p.amount, 0); return Math.max(0, inv.total - paid); }
+        function renderLedger() {
+            const tbody = document.getElementById('ledger-body');
+            tbody.innerHTML = db.invoices.sort((a,b) => b.ts - a.ts).map(i => {
+                const bal = getInvoiceBalance(i.id);
+                const status = bal <= 0 ? 'paid' : (bal < i.total ? 'pending' : 'unpaid');
+                return `<tr>
+                    <td data-label="Ref #"><b>${i.id}</b></td>
+                    <td data-label="Date/Terms">${i.date}<br><small>NET ${i.terms}</small></td>
+                    <td data-label="Client">${i.clientName}</td>
+                    <td data-label="Total">${formatCurrency(i.total)}</td>
+                    <td data-label="Balance" style="color:var(--brand-orange)"><b>${formatCurrency(bal)}</b></td>
+                    <td data-label="Status"><span class="badge badge-${status}">${status}</span></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateStats() {
+            let ar = 0, rev = 0, tax = 0;
+            db.invoices.forEach(i => { const bal = getInvoiceBalance(i.id); ar += bal; rev += (i.total - bal); tax += i.tax; });
+            document.getElementById('stat-ar').innerText = formatCurrency(ar);
+            document.getElementById('stat-rev').innerText = formatCurrency(rev);
+            document.getElementById('stat-tax').innerText = formatCurrency(tax);
+        }
+
+        function formatCurrency(n) { return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(n); }
+
+        // --- FOR TESTING ONLY: START ---
+        function injectTestData() {
+            db.clients = [
+                { id: 'TCL-1', name: 'Metro Mart Corp', branch: 'Makati Main', owner: 'Juan Dela Cruz' },
+                { id: 'TCL-2', name: 'Seven-Eleven Phils', branch: 'Ortigas Center', owner: 'Robert Lim' },
+                { id: 'TCL-3', name: 'Healthy Eats Bistro', branch: 'BGC Stopover', owner: 'Ana Santos' },
+                { id: 'TCL-4', name: 'TechHub Solutions', branch: 'Cyberzone SM', owner: 'Mark Wilson' },
+                { id: 'TCL-5', name: 'Greenwich Pizza', branch: 'Pasig Ave', owner: 'Elena Gomez' }
+            ];
+            db.inventory = [
+                { id: 'TITM-1', type: 'Hardware', name: 'Touchscreen POS Terminal i5', price: 24500 },
+                { id: 'TITM-2', type: 'Hardware', name: '80mm Thermal Receipt Printer', price: 4200 },
+                { id: 'TITM-3', type: 'Hardware', name: 'Electronic Cash Drawer (Large)', price: 3800 },
+                { id: 'TITM-4', type: 'Hardware', name: '2D Handheld Barcode Scanner', price: 2900 },
+                { id: 'TITM-5', type: 'Software', name: 'Siluxnt POS Cloud License (Annual)', price: 12000 },
+                { id: 'TITM-6', type: 'Software', name: 'Inventory Management Module', price: 5500 },
+                { id: 'TITM-7', type: 'Software', name: 'Kitchen Display System (KDS)', price: 8000 },
+                { id: 'TITM-8', type: 'Service', name: 'On-site Hardware Installation', price: 2500 },
+                { id: 'TITM-9', type: 'Service', name: 'Staff Training & Onboarding', price: 1500 },
+                { id: 'TITM-10', type: 'Service', name: 'Premium Support Subscription (Mo)', price: 950 }
+            ];
+            saveDb(); switchPage('home');
+            alert("POS Test Data Loaded!");
+        }
+        function clearAllData() { localStorage.clear(); db = { clients:[], inventory:[], invoices:[], payments:[] }; saveDb(); location.reload(); }
+        // --- FOR TESTING ONLY: END ---
+
+        window.onload = () => switchPage('home');
+    </script>
+</body>
+</html>
